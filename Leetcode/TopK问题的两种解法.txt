@@ -1,0 +1,97 @@
+Top K 问题，是面试中的常客。
+
+Top K 问题有两种不同的解法，一种解法使用堆（优先队列），另一种解法使用类似快速排序的分治法。
+
+方法一：堆，时间复杂度O(nlogk）
+方法二：快排变形，（平均）时间复杂度O(n）
+
+
+
+TopK分为两类：寻找未排序数组的第K大的元素（leetcode215）；寻找未排序数组的第K小的元素（leetcode40）
+
+按照不同的要求：构建堆的类型（40-大顶堆，215-小顶堆）以及元素入堆的条件（40-小于堆顶元素则入堆，215-大于堆顶元素则入堆）
+
+使用有现成优先队列或者堆heap结果的编程语言，很方便解决此类问题，C语言则需要自己造轮子！
+
+
+方法二：快排变形——快速选择
+
+“查找第 k 大的元素”是一类算法问题，称为选择问题。找第 k 大的数，或者找前 k 大的数，有一个经典的 quick select（快速选择）算法。这个名字和 quick sort（快速排序）看起来很像，算法的思想也和快速排序类似，都是分治法的思想。
+让我们回顾快速排序的思路。快速排序中有一步很重要的操作是 partition（划分），从数组中随机选取一个枢纽元素 v，然后原地移动数组中的元素，使得比 v 小的元素在 v 的左边，比 v 大的元素在 v 的右边。
+
+这个 partition 操作是原地进行的，需要O(n)的时间，接下来，快速排序会递归地排序左右两侧的数组。而快速选择（quick select）算法的不同之处在于，接下来只需要递归地选择一侧的数组。快速选择算法想当于一个“不完全”的快速排序，因为我们只需要知道最小的 k 个数是哪些，并不需要知道它们的顺序。
+我们的目的是寻找最小的 k 个数。假设经过一次 partition 操作，枢纽元素位于下标 m，也就是说，左侧的数组有 m 个元素，是原数组中最小的 m 个数。那么：
+若 k=m，我们就找到了最小的 k 个数，就是左侧的数组；
+若 k<m，则最小的 k 个数一定都在左侧数组中，我们只需要对左侧数组递归地 partition 即可；
+若 k>m，则左侧数组中的 m 个数都属于最小的 k 个数，我们还需要在右侧数组中寻找最小的 k-m 个数，对右侧数组递归地 partition 即可。
+这种方法需要多加领会思想，如果你对快速排序掌握得很好，那么稍加推导应该不难掌握 quick select 的要领。
+
+
+public int[] getLeastNumbers(int[] arr, int k) {
+    if (k == 0) {
+        return new int[0];
+    } else if (arr.length <= k) {
+        return arr;
+    }
+    
+    // 原地不断划分数组
+    partitionArray(arr, 0, arr.length - 1, k);
+    
+    // 数组的前 k 个数此时就是最小的 k 个数，将其存入结果
+    int[] res = new int[k];
+    for (int i = 0; i < k; i++) {
+        res[i] = arr[i];
+    }
+    return res;
+}
+
+void partitionArray(int[] arr, int lo, int hi, int k) {
+    // 做一次 partition 操作
+    int m = partition(arr, lo, hi);
+    // 此时数组前 m 个数，就是最小的 m 个数
+    if (k == m) {
+        // 正好找到最小的 k(m) 个数
+        return;
+    } else if (k < m) {
+        // 最小的 k 个数一定在前 m 个数中，递归划分
+        partitionArray(arr, lo, m-1, k);
+    } else {
+        // 在右侧数组中寻找最小的 k-m 个数
+        partitionArray(arr, m+1, hi, k);//注意此处传参为k，k是对于整个数组而言的（k是数组下标）！
+    }
+}
+
+// partition 函数和快速排序中相同，具体可参考快速排序相关的资料
+// 代码参考 Sedgewick 的《算法4》
+int partition(int[] a, int lo, int hi) {
+    int i = lo;
+    int j = hi + 1;
+    int v = a[lo];
+    while (true) {
+        while (a[++i] < v) {
+            if (i == hi) {
+                break;
+            }
+        }
+        while (a[--j] > v) {
+            if (j == lo) {
+                break;
+            }
+        }
+
+        if (i >= j) {
+            break;
+        }
+        swap(a, i, j);
+    }
+    swap(a, lo, j);
+
+    // a[lo .. j-1] <= a[j] <= a[j+1 .. hi]
+    return j;
+}
+
+void swap(int[] a, int i, int j) {
+    int temp = a[i];
+    a[i] = a[j];
+    a[j] = temp;
+}

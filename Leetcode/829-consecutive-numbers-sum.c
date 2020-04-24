@@ -1,4 +1,4 @@
-/*
+﻿/*
 829. 连续整数求和
 给定一个正整数 N，试求有多少组连续正整数满足所有数字之和为 N?
 
@@ -19,6 +19,8 @@
 解释: 15 = 15 = 8 + 7 = 4 + 5 + 6 = 1 + 2 + 3 + 4 + 5
 说明: 1 <= N <= 10 ^ 9
 
+
+注解：使用双指针，先从1开始累加求出最长范围，然后在缓慢缩小并向前移动
 */
 
 #include<stdio.h>
@@ -39,7 +41,7 @@ int main()
 	;
 	printf("\nright =  %d", right);
 	
-	for(left=1, right--; left<= given/2;)
+	for(left=1, right--; left<= given;)//left<= given/2，此处应该可以优化，减少一半的遍历
 	if(sum>given)
 		sum -=(left++);
 	else
