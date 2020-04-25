@@ -18,6 +18,10 @@
 
 
 注解：
+
+【很重要的说明】：总是可以到达数组的最后一个位置！！！  可以排除leetcode55有坑的那种情况
+如{2,1,1,3,2,1,0,1}，此时终点不可到达
+
 1、每个元素是可以跳跃的最大长度，而不是必须跳跃的长度；
 
 2、需要知道上次能到达的位置，作为这一次的起点。然后需要知道此次能到达的最远的位置，作为下一次的起点。
@@ -65,4 +69,73 @@ int main(int argc, char* argv[])
 	printf("ret = %d ", ret);
 
     return 0;
+}
+
+
+【扩展】
+测试用例，如果避不开0这个坑，应该是无解的！
+{2,1,1,3,2,1,0,1};
+
+#include <stdio.h>
+#include <vector>
+using namespace std;
+class Solution{
+public:
+	int jumpGame2(vector<int> steps){
+		//如果格子小于等于1，返回错误1，一步都不跳
+		if(steps.size() <= 1)
+			return 0;
+		//current_index = steps[a]+a;
+		int current_index = steps[0];
+		//pre_index = (a,b] 之间的能去到的最远距离
+		int pre_index = steps[0];
+		//跳跃次数
+		int times = 0;
+		//记录每次跳哪一步
+		int theBestChoise = 0;
+		for(int i = 1;i < steps.size();i++){
+			//指针来到 b+1的位置，不得不跳出一步
+			if(i > current_index){
+				current_index = pre_index;
+				//不得不走一步，只能走到一个坑里面时，结束了
+				if(steps[current_index] == 0)
+                    return 600;
+				printf("跳跃到第%d个格子\n",theBestChoise);
+				times++;
+			}
+			//看pre_index 能否被超过
+			if(pre_index < i+steps[i]){
+				theBestChoise = i;
+				pre_index = i+steps[i];
+                if(pre_index >= steps.size()-1){ //能够到终点了，直接退出
+                    times = times + 2; //这里连续跳了两步
+                    printf("跳跃到第%d个格子,然后直接跳到终点\n",theBestChoise);
+                    break;
+                }
+			}
+		}
+		return times;
+	}
+};
+ 
+int main(){
+	vector<int> steps;
+	steps.push_back(1);
+	steps.push_back(1);
+	steps.push_back(3);
+	steps.push_back(2);
+	steps.push_back(1);
+	//steps.push_back(0);  //注释这一行看这个坑有没有起效
+	steps.push_back(2);
+	steps.push_back(3);
+	steps.push_back(5);
+	steps.push_back(2);
+	Solution solve;
+	int result = solve.jumpGame2(steps);
+	if(result == 0)
+        printf("你只有一个格子或者一个格子都没有，跳0步！");
+    else if(result == 600)
+        printf("你不得不跳入一个坑中，结束一生！");
+    else
+        printf("总共需要跳跃%d步！",result);
 }
