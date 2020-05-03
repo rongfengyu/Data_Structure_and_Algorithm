@@ -64,6 +64,7 @@ https://mp.weixin.qq.com/s/0HLtrZbsZvUR_FJIAizjfw
 */
 
 
+
 #include <iostream>
 #include <stack>
 #include <string>
@@ -72,43 +73,83 @@ using namespace std;
 
 class Solution {
 public:
-    int longestValidParentheses(string s) {
+    int longestValidParentheses(string s) 
+	{
         
+		if (s.size() == 0)
+			return 0;
+
+		int start = 0;
+
+		stack<int> st;
+		int result = 0;//记录结果长度
+
+		for (int i = 0; i < s.size(); ++i)
+		{		
+			if (s[i] == '(')
+			{
+				st.push(i);	
+			}
+			else 
+			{
+				if(st.empty())
+				{
+					start = i+1;
+				} 
+				else
+				{
+					st.pop();//一定要先出栈，然后再计算长度！
+					if(st.empty())
+					{
+						result = max(result, i-start+1);
+					}
+					else
+					{
+						result = max(result, i-st.top());
+					}
+				}
+			}
+		}
+		return result;
+    }
+	
+	int longestValidParentheses2(string s) {
     if (s.size() == 0) {
         return 0;
     }
 
-    stack<int> st;
-    int result = 0;//记录结果长度
+    int n = s.size();
 
-    for (int i = 0; i < s.size(); ++i) {		
-		
+
+   stack<int> st;
+
+    int result = 0;
+
+    // -1 入栈用于处理边界条件
+    st.push(-1);
+
+    for (int i = 0; i < n; ++i) {
         // stack.size() > 1 表示栈不为空，而且我们必须保证栈顶元素是 '('
-        if (s[i] == ')' && (!st.empty()) && s[st.top()] == '(') {
-            
+        if (s[i] == ')' && st.size() > 1 && s[st.top()] == '(') {
+            // 配对的 '(' 出栈
+            st.pop();//一定要先出栈，然后再计算长度！！！
             // 记录长度
-            result = max(result, i - st.top() + 1);//由于我们没有设置栈低的保护元素（一般为-1），所以要在记录长度后再出栈（空栈top会段错误），并且长度要加一
-			
-	    // 配对的 '(' 出栈
-            st.pop();
-			
+            result = max(result, i - st.top());
         } else { // 其他情况，直接将当前位置入栈
-			
             st.push(i);
         }
-		
-	cout<< "em = " << st.empty() <<endl;
-	cout<< "size = " << st.size() <<endl;
     }
+
     return result;
-    }
+}
+
 };
 
 int main(){
-	string s = "()()())";
+	string s = "((()()()())";
 	
 	Solution solve;
-	int result = solve.longestValidParentheses(s);
+	int result = solve.longestValidParentheses2(s);
 
     cout<< "result = " << result <<endl;
 }
@@ -118,6 +159,13 @@ int main(){
 
 
 //2、动态规划-序列型动态规划  空间复杂度O(n)
+
+这道题和那道最长回文串有点像，状态转移方程为
+
+f(n)=f(n-2)+2 if(s[n]==')'&&s[n-1]=='(')　　//这种情况说明是像()()这种连续的
+
+f(n)=f(n-f(n-1)-2)+2 if(s[n]==')'&&s[n-f(n-1)-1]=='(')
+
 public int longestValidParentheses(String s) {
     if (s == null || s.length() == 0) {
         return 0;
