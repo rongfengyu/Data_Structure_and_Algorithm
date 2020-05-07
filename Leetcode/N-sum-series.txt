@@ -1,0 +1,421 @@
+N数之和
+
+两数之和、三数之和、四数之和和K数之和是几道有意思的基础题，可以说是把双指针运用的淋漓尽致。
+（K数之和其实是一个动态规划的题，此处因为满足*数之和的的结构，放在一起对比提一下）。
+
+两数之和  1、167、LintCode56
+
+三数之和  15、16、259、LintCode57
+
+四数之和  18、LintCode58
+
+K数之和  动态规划、LintCode89
+
+
+https://blog.csdn.net/loongkingwhat/article/details/100164890
+
+
+/*
+1、两数之和等于Target的下标
+
+题目描述：
+
+给一个整数数组，找到两个数使得他们的和等于一个给定的数 target。
+假设只有一组答案。
+
+
+你需要实现的函数twoSum需要返回这两个数的下标, 并且第一个下标小于第二个下标。注意这里下标的范围是 0 到 n-1。
+
+
+
+简析：
+
+此处需要返回的是数字所在位置的下标，不是判断是否存在。
+
+
+
+第一种思路借助hashMap，key为数组中的值，value为其下标。遍历一次就可以找出目标答案，空间复杂度为O(n)，时间复杂度为O(n)；
+
+
+
+第二种思路构造Pair类然后进行排序，排序之后通过头尾双指针找到目标答案，时间复杂度为O(nlogn)，空间复杂度为O(n)；
+
+*/
+
+
+
+/*
+2、三数之和等于0的组合排列
+
+题目描述：给出一个有n个整数的数组S，在S中找到三个整数a, b, c，找到所有使得a + b + c = 0的三元组。
+在三元组(a, b, c)，要求a <= b <= c。结果不能包含重复的三元组。
+
+
+
+简析：
+
+此题目target是固定等于0，那么要求的a、b、c中一定是正负相加或者全0。我们可以枚举首位a，然后用双指针遍历找出和为target - a的俩数。
+注意，要使用双指针必须首先保证有序性。
+
+注意此题目要求输出的组合中不能有重复，所以要去重。
+
+去重的方法无非就是：枚举首位元素a的时候，保证不重复。当找到某组组合之后，第二位的元素和第三位的元素都需要去重。
+
+在有序数组中，该去重操作就是就是移到到下一位不想等的元素上。a元素如果发现已经被枚举过了，则将a元素指针i进行i ++，b元素如果之后重复是相等的，则不断后移，直到移到后面第一个不是该元素的位置上。
+
+实现起来就是while(numbers[left] == numbers[left + 1]) left ++，完成while循环之后，再加一个left ++。
+
+*/
+
+public class Solution {
+    /**
+     * @param numbers: Give an array numbers of n integer
+     * @return: Find all unique triplets in the array which gives the sum of zero.
+     */
+    public List<List<Integer>> threeSum(int[] numbers) {
+        // write your code here
+        
+        //边界判断
+        if(numbers == null || numbers.length == 0)
+            return null;
+        
+        //返回的二维list
+        List<List<Integer>> res = new ArrayList<>();
+        
+        //数组排序
+        Arrays.sort(numbers);
+        
+        //枚举首位元素a + 双指针遍历
+        for(int i = 0; i < numbers.length - 2 && numbers[i] <= 0; i ++){
+            
+            //首位元素去重
+            while(i >= 1 && i < numbers.length - 2 && numbers[i] == numbers[i - 1])
+                i ++;
+            int left = i + 1;
+            int right = numbers.length - 1;
+            //left < right 同时约束了指针的范围，避免了 i++ 越界
+            while(left < right){ 
+                if(numbers[i] + numbers[left] + numbers[right] == 0){
+                    List<Integer> tmp =  new ArrayList<>();
+                    tmp.add(numbers[i]);
+                    tmp.add(numbers[left]);
+                    tmp.add(numbers[right]);
+                    res.add(tmp);
+                    //第二位元素去重
+                    while(left + 1 < right && numbers[left] == numbers[left + 1])
+                        left ++;
+                    //第三位元素去重
+                    while(left < right - 1 && numbers[right] == numbers[right - 1])
+                        right --;
+                     //注意！！去重结束之后仍要同时移动left和right指针
+                     //保证指针移动到了第一个不是重复元素的位置上
+                    left ++; right --;    
+                }else if(numbers[i] + numbers[left] + numbers[right] > 0)
+                    right --;
+                else
+                    left ++;    
+            }
+        }
+        
+        return res;
+    }
+}
+
+/*
+3、三数之和小于Target的组合总数目
+
+题目描述：
+
+给定一个n个整数的数组和一个目标整数target，找到下标为i、j、k的数组元素0 <= i < j < k < n，满足条件nums[i] + nums[j] + nums[k] < target。
+输出满足上述条件的组合的总数。
+
+
+
+简析：
+
+需要找和为target的三个数，可以首先确定一个数A，然后找和为target-A的两个数。
+
+
+
+(错误思路：“从数学角度来看，三个数和为target，一定至少有1个小于等于target的数。所以可以A数的范围定在<= target的范围进行枚举，剩余两数则在大于A的范围内进行双指针遍历”。 这种想法非常非常错误的，比如target= (-4) = (-2) + (-2) + 0，三个数都比target要大。当target为0和正数的时候，刚才的说法才是正确的。）
+
+
+
+通过剖析上面的错误思路，对于首位数字的枚举，不能仅仅只枚举小于等于target的数，应该遍历到数组中所有的数，也就是从[0, length -3]，最后两位要留给剩余两个数字。
+
+
+*/
+
+
+public class Solution {
+    /**
+     * @param nums:  an array of n integers
+     * @param target: a target
+     * @return: the number of index triplets satisfy the condition nums[i] + nums[j] + nums[k] < target
+     */
+    public int threeSumSmaller(int[] nums, int target) {
+        // Write your code here
+        int cnt = 0;
+        if(nums == null || nums.length == 0)
+            return cnt;
+        //数组排序后方可使用双指针
+        Arrays.sort(nums);
+
+        //枚举首位数字
+        for(int i = 0; i <= nums.length - 3; i ++){
+            int left = i + 1;
+            int right = nums.length - 1;
+            //确定首位数字后，双指针遍历
+            while(left < right){
+               //当和小于target时：保持当前left不变，right指针从此处前移到left+1，所有的和都将小于target
+               //所以此时满足条件的情况的数目等于 right - (left + 1) + 1 = right - left
+                if(nums[left] + nums[right] < target - nums[i]){ 
+                    cnt += right - left;  
+                    left ++;
+                }else
+                    right --;
+            }
+        }
+        return cnt;
+    }
+}
+
+/*
+四叔之和等于Target的组合
+
+题目描述：
+
+给一个包含n个数的整数数组S，在S中找到所有使得和为给定整数target的四元组(a, b, c, d)。
+
+四元组(a, b, c, d)中，需要满足a <= b <= c <= d。
+
+答案中不可以包含重复的四元组。
+
+
+
+简析：
+
+四数之和在三数之和的基础上又多了一个数字，仍旧使用双指针，此时需要枚举前两个元素a和b，双指针寻找c和d，是的c + d = target - a - b。
+
+在有序数组中的去重仍旧采用移动指针的方法，直到移动到第一个不相等的位置。
+
+具体来说，在处理的时候要注意两个问题：1.数组越界 2.去重遍历的范围。
+
+
+
+例如对第一个元素来说，i本身的范围是[0, numbers.length - 4]，但是当他处理0位置时候，不需要和前面的元素判重。判重的范围是[1, numbers.length - 4]，例如第1位置的数值与第0位置的数值相等，则需要跳过第1位置。
+
+
+
+针对第二个元素，j本身的范围是[i + 1, numbers.length -3]。和第一个元素一样，他判重的范围是包含i + 1的。从i + 2位置开始，如果和前面元素相等，则需要跳过。
+
+
+
+针对第三个和第四个元素而言，当出现满足要求的组合时候，就要进行去重，分别把left和right指针移动到不等于当前指针的第一个位置。
+移动指针过程中非常容易出现数组越界，在while(left < right)的循环中，要保证left指针left ++后都要小于right，right指针保证right -- 要大于left。
+
+
+*/
+
+
+public class Solution {
+    /**
+     * @param numbers: Give an array
+     * @param target: An integer
+     * @return: Find all unique quadruplets in the array which gives the sum of zero
+     */
+    public List<List<Integer>> fourSum(int[] numbers, int target) {
+        // write your code here
+        List<List<Integer>> res = new ArrayList<>();
+        if(numbers == null || numbers.length == 0)
+            return res;
+        
+        Arrays.sort(numbers);
+        //a元素遍历
+        for(int i = 0; i < numbers.length - 3; i ++){
+            
+            //a元素去重
+            while(i > 0 && i <  numbers.length - 3 && numbers[i] == numbers[i - 1])
+                i ++;
+            //b元素遍历
+            for(int j = i + 1; j < numbers.length - 2; j ++){
+                
+                //b元素去重
+                while(j > i + 1 &&  j < numbers.length - 2 && numbers[j] == numbers[j - 1])
+                    j ++;
+                    
+                //双指针
+                int left = j + 1;
+                int right  = numbers.length - 1;
+                while(left < right){
+                    if(numbers[left] + numbers[right] + numbers[i] + numbers[j] == target){
+                        List<Integer> tmp = new ArrayList<>();
+                        tmp.add(numbers[i]); 
+                        tmp.add(numbers[j]); 
+                        tmp.add(numbers[left]); 
+                        tmp.add(numbers[right]);
+                        res.add(tmp);
+                        //第三个元素去重
+                        while(left + 1 < right && numbers[left + 1] == numbers[left])
+                            left ++;
+                         //第四个元素去重   
+                        while(left < right - 1 && numbers[right] == numbers[right - 1])
+                            right --;
+                        left ++; right --;    
+                    }else if(numbers[left] + numbers[right] + numbers[i] + numbers[j] < target)
+                        left ++;
+                    else
+                        right --;
+                }
+            }
+        }        
+        return res;
+    }
+}
+
+
+
+/*
+
+5、K数之和
+
+
+此题目与上面的题目都是同一类型的，前面的题都是双指针的。
+此题目虽然是k数之和，看起来像三数之和、四数之和的拓展。但其实是动态规划的问题。
+
+题目描述：
+
+给定 n 个不同的正整数，整数 k（k <= n）以及一个目标数字 target。　
+在这 n 个数里面找出 k 个数，使得这 k 个数的和等于目标数字，求问有多少种方案？
+
+
+输入:
+List = [1,2,3,4] ； k = 2 ； target = 5
+
+输出: 2
+
+说明: 1 + 4 = 2 + 3 = 5
+
+
+
+简析：设状态为f[i][j][p]，表示前i个数中找出j个数且和等于p的方案数目。
+
+
+
+那么状态转移方程： f[i][j][p] = f[i - 1][j][p] + f[i - 1][j - 1][p -num[i]]
+
+最终返回f[n][k][target]即可
+
+T(n, k, target) = O(n*k*target). area(n, k, target) = O(k*target)
+*/
+
+
+public class Solution {
+    /**
+     * @param A: An integer array
+     * @param k: A positive integer (k <= length(A))
+     * @param target: An integer
+     * @return: An integer
+     */
+    public int kSum(int[] A, int k, int target) {
+        // write your code here
+        if(A == null || A.length ==0 || k <= 0)
+            return 0;
+        //正整数的总数从0 - A.length； 可选的个数从 0 - k; target也是从 0 - target
+        int[][][] f = new int[A.length + 1][ k + 1][target + 1];
+        //初始值
+        for(int i = 0; i <= A.length; i ++){//前i个数中取0个和为0只有一种方案，就是不取任何数;
+            f[i][0][0] = 1;
+        }
+        //f[i][j][t] = f[i - 1][j][t] + f[i - 1][j - 1][t -A[i]]
+        for(int i = 1; i <= A.length; i ++)
+            for(int j = 1; j <= k; j ++)
+                for(int t = 1; t <= target; t ++){
+                    f[i][j][t] = f[i - 1][j][t];
+                    f[i][j][t] += t - A[i - 1] >=0 ? f[i - 1][j - 1][t -A[i - 1]] : 0;
+                }
+        return f[A.length][k][target];
+    }
+}
+
+//https://www.cnblogs.com/Tang-tangt/p/9383772.html
+/* 空间优化 —— 滚动数组 
+
+可以把dp数组最外层去掉，保留两个维度。
+因为 D[i][j][t] += D[i - 1][j - 1][t - A[i - 1]]（t>=A[i-1]），这个表达式说明D[i][j][t]是把上一级 i 的结果累加过来，这里我们省去了 i 这一级，在D[j][t]这个二维表里就地累加。
+可以参考背包问题，背包问题dp数组优化是当前行代替上一行。这里dp是三维数组，省去一维就是当前二维表代替上一个二维表。
+同理，为避免覆盖问题，j和t索引要从后向前遍历。
+
+*/
+
+
+class Solution {
+public:
+    /**
+     * @param A: an integer array.
+     * @param k: a positive integer (k <= length(A))
+     * @param target: a integer
+     * @return an integer
+     */
+    int kSum(vector<int> A, int k, int target) {
+        // wirte your code here  T(n, k, target) = O(n*k*target). area(n, k, target) = O(k*target)
+        int n = A.size();
+        int dp[k+1][target+1];
+        memset(dp, 0, sizeof(dp));
+        dp[0][0] = 1;
+        for (int x = 0; x < n; x++)
+            for (int y = k; y >= 1; y--)
+                for (int z = target; z >= A[x]; z--)
+                    dp[y][z] += dp[y-1][z-A[x]];
+        return dp[k][target];
+    }
+};
+
+
+/* 递归解法 —— 超时 */
+
+class Solution {
+public:
+    /**
+     * @param A: An integer array
+     * @param k: A positive integer (k <= length(A))
+     * @param target: An integer
+     * @return: An integer
+     */
+    int kSum(vector<int> &A, int k, int target) {
+        // write your code here
+    int result=0;
+    if (A.empty())
+    {
+        return result;
+    }
+    ksum(A,k,target,0,0,0,result);
+    return result;
+    }
+    
+    void ksum(vector<int> &A, int k, int target,int sum,int ind,int size,int &result)
+{
+    if (size==k)
+    {
+        if (sum==target)
+        {
+            result++;
+        }
+        return ;
+    }
+    if (ind>=A.size())
+    {
+        return ;
+    }
+    ksum(A,k,target,sum+A[ind],ind+1,size+1,result);
+    ksum(A,k,target,sum,ind+1,size,result);
+}
+    
+};
+
+
+
+
+
+
+
