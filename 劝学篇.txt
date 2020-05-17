@@ -1,0 +1,48 @@
+算法与数据结构的劝学篇
+
+一、漫画：呕心泣血算法指导篇（真正的干货，怒怼那些说算法没用的人）
+
+程序员浩哥  小浩算法
+
+https://mp.weixin.qq.com/s/0yAGIupghy-M82-HXDDeiA
+
+
+二、算法题从入门到放弃？刷了几千道算法题，关于如何刷题有些话我想对你说
+
+ Rocky0429  Python空间
+
+https://mp.weixin.qq.com/s/_VHgIhBT4aFjG5FC6P4NWA
+
+三、看到后台这么多人私信我说：算法越学越扎心，有没啥破解之法？帅地熬夜撸出了这篇学习心得！
+
+帅地  帅地玩编程
+
+https://mp.weixin.qq.com/s/LHYspQddL6BFe70oArUG-w
+
+四、大厂面试为什么总考算法？以及如何避开算法面试。
+
+liuyubobobo  是不是很酷
+
+https://mp.weixin.qq.com/s/r8myL-qGW24R4PRDkKjtyg
+
+五、新手如何有效的刷算法题（LeetCode）
+
+程序员吴师兄  五分钟学算法
+
+https://mp.weixin.qq.com/s/GJMfcXzyo1_wzZt6wYaTeQ
+
+六、算法学习之路
+
+labuladong  labuladong
+
+https://mp.weixin.qq.com/s/t_6E76zyp7Y5AB7giqtIGg
+
+七、数据结构和算法学习指南
+
+labuladong  labuladong
+
+https://mp.weixin.qq.com/s/ZYaXOSVM3YBIeRWm7E_jcQ
+
+
+八、labuladong的算法小抄
+https://labuladong.gitbook.io/algo/
