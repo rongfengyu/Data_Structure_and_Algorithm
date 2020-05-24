@@ -1,4 +1,4 @@
-/*
+﻿/*
 53. 最大子序和
 给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
 
@@ -29,7 +29,7 @@ int main(){
     long long int sum=0;
     long long int Max = -k;
 	
-	int a[] = {[-2,1,-3,4,-1,2,1,-5,4};
+	int a[] = {-2,1,-3,4,-1,2,1,-5,4};
 	
 	sum = 0;
 	Max = -k;
@@ -61,7 +61,7 @@ class Solution {
         dp[0] = nums[0];
         ans = nums[0];
 
-        // 3. 状态转移
+        // 3. 状态转移  dp[i]定义为以nums[i]为结尾的“最大子数组和”
         // 转移方程：dp[i] = max(dp[i - 1], 0) + nums[i]
         //  dp 当前元素的值等于前一个元素值和 0 的最大值再加上 nums[i]
         for (int i = 1; i < nums.length; i++) {

@@ -1,0 +1,124 @@
+/*
+9-0、斐波拉契数列
+
+大家都知道斐波那契数列，现在要求输入一个整数n，请你输出斐波那契数列的第n项（从0开始，第0项为0，第1项是1）。
+n<=39
+
+斐波那契数列公式为：
+	0, n=0
+f(n) = {1, n=1
+	f(n-1)+f(n-2),n>1
+*/
+
+//递归解法，直观，但是时间复杂度是以n的指数的方式递增的，一般情况下不可取
+
+//迭代解法，时间O(N)，空间O(1),可以看做最基本的DP问题
+class Solution {
+public:
+    int Fibonacci(int n) {
+        if(n <= 0)
+            return 0;
+        if(n == 1)
+            return 1;
+        int first = 0, second = 1, third = 0;
+        for (int i = 2; i <= n; i++) {
+            third = first + second;
+            first = second;
+            second = third;
+        }
+        return third;
+    }
+};
+
+/*
+9-1、跳台阶
+
+一只青蛙一次可以跳上1级台阶，也可以跳上2级。求该青蛙跳上一个n级的台阶总共有多少种跳法。
+
+我们把n级台阶时的跳法看成是n的函数，记为f(n)。
+
+当n>2时，第一次跳的时候就有两种不同的选择：
+一是第一次只跳1级，此时跳法数目等于后面剩下的n-1级台阶的跳法数目，即为f(n-1)；
+另外一种选择是跳一次跳2级，此时跳法数目等于后面剩下的n-2级台阶的跳法数目，即为f(n-2)。
+
+因此n级台阶的不同跳法的总数f(n)=f(n-1)+f(n-2)。分析到这里，我们不难看出这实际上就是斐波那契数列了。
+*/
+
+class Solution {
+public:
+    int jumpFloor(int number) {
+        if(number <= 0){
+            return 0;
+        }
+        else if(number < 3){
+            return number;
+        }
+        int first = 1, second = 2, third = 0;
+        for(int i = 3; i <= number; i++){
+            third = first + second;
+            first = second;
+            second = third;
+        }
+        return third;
+    }
+};
+
+/*
+9-2、变态跳台阶
+
+一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个n级的台阶总共有多少种跳法。
+
+分析：
+因为n级台阶，第一步有n种跳法：跳1级、跳2级、到跳n级
+
+
+
+跳1级，剩下n-1级，则剩下跳法是f(n-1)
+
+跳2级，剩下n-2级，则剩下跳法是f(n-2)
+
+
+
+所以f(n) = f(n-1) + f(n-2) + ... + f(1)
+
+因为f(n-1) = f(n-2) + f(n-3 )+ ... + f(1)
+
+
+所以f(n) = 2 * f(n-1)。
+
+
+
+根据f(1) = 1，f(n) = 2 * f(n-1)，可以得出f(n) =?2^(n-1)。
+
+
+或者可以这么分析：每个台阶都有跳与不跳两种情况（除了最后一个台阶），最后一个台阶必须跳。
+所以共用2^(n-1)种情况。
+
+*/
+
+
+//DP思路
+//时间复杂度是O(n)。
+//也可以使用动态规划解决这个问题，这时的[状态转移方程]就变成了F(n) = 2*F(n-1)。
+
+public class Solution {
+ 
+    public static void main(String[] args) {
+        Long begintime = System.nanoTime();
+        int result = JumpFloorII(10);
+        Long endtime = System.nanoTime();
+        System.out.println("result="+result+"；用时："+(endtime-begintime)+"ns");
+    }
+ 
+    public static int JumpFloorII(int target) {
+        //第n次走的台阶个数是第n-1次走的台阶个数的2倍
+        //所以状态转移方程为 dp[i] = 2*dp[i-1];
+        int[] dp = new int[target+1];
+        dp[0] = dp[1] = 1;
+        for (int i=2; i<=target; ++i) {
+            dp[i] = 2*dp[i-1];
+        }
+        return dp[target];
+    }
+ 
+}
