@@ -1,2 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = include src/bar src/foo src/main
+#SUBDIRS = $(INCLUDE) src/bar src/foo src/main
+SUBDIRS = $(INCLUDE) $(SRCDIR)
+EXTRA_DIST = reconf configure
+#EXTRA_DIST = configure

@@ -128,6 +128,9 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libbar_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libbar_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -214,7 +217,9 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FOODIR = @FOODIR@
 GREP = @GREP@
+INCLUDE = @INCLUDE@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -249,6 +254,7 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SRCDIR = @SRCDIR@
 STRIP = @STRIP@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
@@ -306,6 +312,7 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libbar.la
 libbar_la_SOURCES = bar.c
 AM_CPPFLAGS = -I$(top_srcdir)/include  
+libbar_la_LDFLAGS = -release 2.1.3 -version-info 3:3:3 
 all: all-am
 
 .SUFFIXES:
@@ -377,7 +384,7 @@ clean-libLTLIBRARIES:
 	}
 
 libbar.la: $(libbar_la_OBJECTS) $(libbar_la_DEPENDENCIES) $(EXTRA_libbar_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libbar_la_OBJECTS) $(libbar_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libbar_la_LINK) -rpath $(libdir) $(libbar_la_OBJECTS) $(libbar_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -620,6 +627,7 @@ uninstall-am: uninstall-libLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES
 
+# set the soname: libhello-2.1.3.so.3.0.0
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -2,11 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([hello], [1.0.0.0], [zjbhello@163.com])
-AM_INIT_AUTOMAKE([hello],[1.0.0.0])
+AC_INIT([hello], [1.0.0.1], [zjbhello@163.com])
+#AM_INIT_AUTOMAKE(hello,1.0.0.0)
 AC_CONFIG_SRCDIR([src/main/main.c])
+AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])
-
+AC_CONFIG_MACRO_DIR([m4])
 # Checks for programs.
 AC_PROG_CC
 #AC_PROG_LIBTOOL
@@ -15,14 +16,19 @@ LT_INIT
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADERS([stdio.h assert.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_SUBST([INCLUDE],[include])
+AC_SUBST([SRCDIR],[src])
+AC_SUBST([FOODIR],[foo])
 
 # Checks for library functions.
 
 AC_OUTPUT(Makefile
 	include/Makefile
+	src/Makefile
 	src/main/Makefile
 	src/foo/Makefile
 	src/bar/Makefile
