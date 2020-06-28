@@ -97,7 +97,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_hello_OBJECTS = main.$(OBJEXT)
 hello_OBJECTS = $(am_hello_OBJECTS)
-hello_DEPENDENCIES = $(top_srcdir)/src/foo/libfoo.a
+hello_DEPENDENCIES = $(top_builddir)/src/foo/libfoo.a
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -285,9 +285,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 hello_SOURCES = main.c
-hello_LDADD = $(top_srcdir)/src/foo/libfoo.a
+hello_LDADD = $(top_builddir)/src/foo/libfoo.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
-hello_LDFLAGS = -L$(top_srcdir)/src/bar -L$(top_srcdir)/src/play
+hello_LDFLAGS = -L$(top_builddir)/src/bar -L$(top_builddir)/src/play
 all: all-am
 
 .SUFFIXES:
