@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([hello], [1.0.0.3], [zjbhello@163.com])
+AC_INIT([hello], [1.0.0.4], [zjbhello@163.com])
 #AM_INIT_AUTOMAKE(hello,1.0.0.0)
 AC_CONFIG_SRCDIR([src/main/main.c])
 AM_INIT_AUTOMAKE
@@ -25,6 +25,8 @@ AC_SUBST([SRCDIR],[src])
 AC_SUBST([DOCDIR],[doc])
 AC_SUBST([FOODIR],[foo])
 
+m4_include(m4/deplibs.m4)
+
 # Checks for library functions.
 
 AC_OUTPUT(Makefile
@@ -35,6 +37,7 @@ AC_OUTPUT(Makefile
 	src/foo/Makefile
 	src/bar/Makefile
 	src/play/Makefile
+	src/play/play-1.0.pc
 	)
 
 #./configure --prefix=/home/xx --host=mips64el-loongson3a-linux-gnu
