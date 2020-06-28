@@ -1,0 +1,11 @@
+#!/bin/bash
+echo '- libtoolize'
+libtoolize --force                 # 这个是和libtool配合的，如果你要生成动态库，才用这个。
+echo '- aclocal -I m4'
+aclocal -I m4                      # 给configure.in中的宏生成实际脚本。
+echo '- autoconf'
+autoconf                           # autoconf 将 configure.in 转化为configure
+echo '- autoheader'
+autoheader                         # 生成 config.h.in 模板
+echo '- automake --add-missing --foreign'
+automake --add-missing --foreign   # 将你在configure.in中，指定的各个Makefile.am，转成Makefile.in模板。

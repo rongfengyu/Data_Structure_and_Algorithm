@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([hello], [1.0.0.1], [zjbhello@163.com])
+AC_INIT([hello], [1.0.0.2], [zjbhello@163.com])
 #AM_INIT_AUTOMAKE(hello,1.0.0.0)
 AC_CONFIG_SRCDIR([src/main/main.c])
 AM_INIT_AUTOMAKE
@@ -22,14 +22,19 @@ AC_CHECK_HEADERS([stdio.h assert.h])
 AC_C_CONST
 AC_SUBST([INCLUDE],[include])
 AC_SUBST([SRCDIR],[src])
+AC_SUBST([DOCDIR],[doc])
 AC_SUBST([FOODIR],[foo])
 
 # Checks for library functions.
 
 AC_OUTPUT(Makefile
 	include/Makefile
+	doc/Makefile
 	src/Makefile
 	src/main/Makefile
 	src/foo/Makefile
 	src/bar/Makefile
+	src/play/Makefile
 	)
+
+#./configure --prefix=/home/xx --host=mips64el-loongson3a-linux-gnu
