@@ -230,6 +230,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PCRE_LIB = @PCRE_LIB@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -292,7 +293,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 #ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = bar $(FOODIR) play main
+SUBDIRS = bar $(FOODIR) play main thirdparty
 all: all-recursive
 
 .SUFFIXES:

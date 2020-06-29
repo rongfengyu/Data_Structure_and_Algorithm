@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([hello], [1.0.0.4], [zjbhello@163.com])
+AC_INIT([hello], [1.0.0.5], [zjbhello@163.com])
 #AM_INIT_AUTOMAKE(hello,1.0.0.0)
 AC_CONFIG_SRCDIR([src/main/main.c])
 AM_INIT_AUTOMAKE
@@ -34,6 +34,7 @@ AC_OUTPUT(Makefile
 	doc/Makefile
 	src/Makefile
 	src/main/Makefile
+	src/thirdparty/Makefile
 	src/foo/Makefile
 	src/bar/Makefile
 	src/play/Makefile
@@ -41,3 +42,11 @@ AC_OUTPUT(Makefile
 	)
 
 #./configure --prefix=/home/xx --host=mips64el-loongson3a-linux-gnu
+
+#../configure --prefix=/home/xroot --with-sysroot=/home/xroot --host=mips64el-loongson3a-linux-gnu LIBS=-L/home/xroot/usr/lib/ CPPFLAGS=-I/home/xroot/usr/include/
+
+#64bit
+#../configure --prefix=/home/xroot/ --host=mips64el-loongson3a-linux-gnu LIBS="-L/home/xroot/usr/lib64/" CPPFLAGS="-I/home/xroot/usr/include/"
+
+#32bit
+#../configure --prefix=/home/xroot/ --host=mips-linux-gnu CC=mips64el-loongson3a-n32-linux-gnu-gcc LIBS="-L/home/xroot/usr/lib/" CPPFLAGS="-I/home/xroot/usr/include"
