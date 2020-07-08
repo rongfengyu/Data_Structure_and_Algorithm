@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
      printf("main +\n");
      func_foo();
      func_bar();
+     func_bar1();
      func_play();
      printf("main -\n");
     return 0;
