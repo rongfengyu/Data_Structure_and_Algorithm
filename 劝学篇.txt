@@ -48,6 +48,11 @@ https://mp.weixin.qq.com/s/ZYaXOSVM3YBIeRWm7E_jcQ
 https://labuladong.gitbook.io/algo/
 
 
+九、GeeksforGeeks
+https://www.geeksforgeeks.org
+印度人搞的很全的算法(这点必须学习印度，国内还没有这么集中算法智慧的站点，大多数程序员站点都是些鸡肋),数据结构,编程技巧,智力题集合网站,绝对秒杀中国所有编程站点
+
+
 复杂度通常包括时间复杂度和空间复杂度。在具体计算复杂度时需要注意以下几点。
 
 它与具体的常系数无关，O(n) 和 O(2n) 表示的是同样的复杂度。
