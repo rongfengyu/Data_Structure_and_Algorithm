@@ -60,6 +60,19 @@ int removeElement(int nums[], int len, int val)
     }
     return j;
 }
+
+int removeElement(int[] nums, int val) {
+    int fast = 0, slow = 0;
+    while (fast < nums.length) {
+        if (nums[fast] != val) {
+            nums[slow] = nums[fast];
+            slow++;
+        }
+        fast++;
+    }
+    return slow;
+}
+
 //方法二-利用数组元素交换实现，较前者减少元素移动赋值次数
 int removeElement2(int nums[], int len, int val)
 {
