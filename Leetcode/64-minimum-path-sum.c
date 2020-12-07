@@ -58,3 +58,69 @@ public:
         return dp[m - 1][n - 1];
     }
 };
+
+
+//C语言实现
+#include<stdio.h>
+#include<stdlib.h>
+
+int minPathSum(int** grid, int gridSize, int gridColSize)
+{
+    int rows = gridSize;
+    int cols = gridColSize;
+    if(rows==0 || cols==0)
+        return 0;
+
+    int dp[rows][cols];
+    dp[0][0] = grid[0][0];
+    int i,j;
+    for(i = 1; i < rows; i++)
+        dp[i][0] = dp[i-1][0] + grid[i][0];
+    
+    for(j = 1; j < cols; j++)
+        dp[0][j] = dp[0][j-1] + grid[0][j];
+    
+    for(i = 1; i < rows; i++)
+        for(j = 1; j < cols; j++)
+		{
+			dp[i][j] = min3(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]) + grid[i][j];//可以从上、左、斜左上方进行移动
+			//dp[i][j] = min2(dp[i-1][j], dp[i][j-1]) + grid[i][j];//可以从上、左进行移动
+		}
+            
+		
+
+    return dp[rows-1][cols-1];
+}
+
+int min3(int x, int y, int z)
+{
+   if (x < y)
+      return (x < z)? x : z;
+   else
+      return (y < z)? y : z;
+}
+
+int min2(int x, int y)
+{
+    return (x < y)? x : y;
+}
+
+int main()
+{
+    int cost[][3] = { {1, 2, 3},
+                      {4, 8, 2},
+                      {1, 5, 3},{1,1,1} };
+
+	int row = sizeof(cost)/sizeof(cost[0]);
+	int col = sizeof(cost[0])/sizeof(cost[0][0]);
+	
+	//使用指针数组将二维数组转化为二维指针进行传递，更加灵活
+    int** ppcost = (int **)malloc(sizeof(int *)* row);//或者int *pcost[row];
+    int i=0;
+    for(i=0; i < row; i++)
+        ppcost[i] = (int *)(cost + i);
+
+   printf(" %d \n", minPathSum(ppcost, row, col));
+   return 0;
+}
+
