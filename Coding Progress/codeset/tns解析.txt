@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include<arpa/inet.h>
+
+const char *tns_host="(HOST=";
+const char *tns_port="(PORT=";
+
+int main(void)
+{
+    char tnsbuf[128] = "(ADDRESS=(PROTOCOL=tcp)(HOST=192.168.6.39)(PORT=4699))";
+    char *data = tnsbuf;
+    char *data_start = data;
+    char *suff, *cp;
+    unsigned int src_addr_n, num_commas, tmp, nat_addr_n=0x2906a8c0, newlen;
+    unsigned short port;
+    
+    if( ((char *)data)[5] == 0x45)
+        printf("ok \n");
+    
+    while (data + (7 + strlen(tns_port)) <= data_start+strlen(tnsbuf))
+    {
+        if (strncasecmp((char *)data, tns_host, strlen(tns_host)) == 0)
+        {
+            printf("Find HOST !\n");
+            break;
+        }
+        else
+            data++;
+    }
+    
+    cp = data + strlen(tns_host);
+    
+    /* Count the commas */
+    num_commas = 0;
+    while(*cp != '\0')
+    {
+        if(*cp == '.')
+            num_commas++;
+        else if (*cp == ')')
+            *cp = '\0';
+        
+        cp++;
+    }
+    if(num_commas != 3)
+        return 0;
+
+    /* Get the ip address */
+    cp = data + strlen(tns_host);
+    if(inet_pton(2, cp, &src_addr_n) != 1)
+        return 0;
+        
+    /* Get the port */
+    cp += strlen(cp) + 1 + strlen(tns_port);
+    tmp = (int)strtol(cp, &suff, 10);
+    if(tmp < 0 || tmp > 65535 || cp == suff || *suff != '\0')
+        return 0;
+    
+    port = (unsigned short)tmp;
+    cp = suff + 1;
+
+    if(*cp != '\0')
+        return 0;
+    
+    
+    printf("address:%s||%x||%d\n", cp, src_addr_n, port);/*打印地址的16进制形式*/
+    
+    
+    /* Modify the buffer */
+    cp = data + strlen(tns_host);
+    if(inet_ntop(2, &nat_addr_n, cp, 16) == 0)
+        return 0;
+    while(*cp != 0)
+    {
+        cp++;
+    }
+    *cp++ = ')';
+    memcpy(cp, tns_port, strlen(tns_port));
+    cp += strlen(tns_port);
+    cp += sprintf(cp, "%d", port);
+    *cp++ = ')';
+    *cp++ = ')';
+    *cp = '\0';
+    newlen = strlen(tnsbuf);
+
+    printf("address:%s||%x||%d\n", tnsbuf, nat_addr_n, port);/*打印地址的16进制形式*/
+}
+

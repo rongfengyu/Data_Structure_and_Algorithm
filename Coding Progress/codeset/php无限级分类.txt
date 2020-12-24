@@ -1,0 +1,104 @@
+<?php
+
+
+function generateTree($items){  
+    $tree = array();  
+    foreach($items as $item){  
+        //判断是否有数组的索引==  
+        if(isset($items[$item['pid']])){     //查找数组里面是否有该分类  如 isset($items[0])  isset($items[1])  
+            $items[$item['pid']]['son'][] = &$items[$item['id']]; //上面的内容变化,$tree里面的值就变化  
+        }else{  
+            $tree[] = &$items[$item['id']];   //把他的地址给了$tree  
+        }    
+    }  
+    return $tree;  
+}     
+
+$arr=array(    
+	60001=>array('id'=>'60001','name'=>'天朝','pid'=>'0'),
+	60002=>array('id'=>'60002','name'=>'天朝2','pid'=>'0'),
+	
+    1=>array('id'=>'1','name'=>'北京','pid'=>'60001'),    
+    2=>array('id'=>'2','name'=>'上海','pid'=>'60001'),    
+    3=>array('id'=>'3','name'=>'浦东','pid'=>'2'),    
+    4=>array('id'=>'4','name'=>'朝阳','pid'=>'1'),    
+    5=>array('id'=>'5','name'=>'广州','pid'=>'60002'),    
+    6=>array('id'=>'6','name'=>'三里屯','pid'=>'4'),   
+    7=>array('id'=>'7','name'=>'广东','pid'=>'5'),   
+    8=>array('id'=>'8','name'=>'三里','pid'=>'4'),  
+    10=>array('id'=>'10','name'=>'小胡同','pid'=>'8'),
+	
+    );   
+
+print_r(generateTree($arr));
+
+
+<?php
+
+
+function generateTree($items){  
+    $tree = array();  
+    foreach($items as $item){  
+        //判断是否有数组的索引==  
+        if(isset($items[$item['pid']])){     //查找数组里面是否有该分类  如 isset($items[0])  isset($items[1]) 
+			
+			$items[$item['id']]['path'] = $items[$item['pid']]['path'].'/'.$item['name'];
+			
+			$items[$item['pid']]['expanded'] = true;
+			$items[$item['pid']]['leaf'] = false;
+				
+            $items[$item['pid']]['son'][] = &$items[$item['id']]; //上面的内容变化,$tree里面的值就变化 
+			
+			
+        }else{ 
+			$items[$item['id']]['path'] = '/'.$item['name'];
+			//$items[$item['id']]['expanded'] = true;
+			//$items[$item['id']]['leaf'] = false;
+			//$item['path'] = '/'.$item['name'];
+            $tree[] = &$items[$item['id']];   //把他的地址给了$tree  
+        }    
+    }  
+    return $tree;  
+}     
+
+
+function getChildrenList($items, $id){  
+	
+	$ret_arr = [];
+	
+	foreach($items as $item){ 
+		if($item['pid'] == $id){
+			array_push($ret_arr, $item['id']);
+			
+			$ret_arr = array_merge($ret_arr, getChildrenList($items,$item['id']));
+		}
+	}
+	
+
+    return $ret_arr;  
+}
+
+
+$arr=array(    
+	60001=>array('id'=>'60001','name'=>'天朝','pid'=>'0','path' => '', 'expanded' => false, 'leaf' => true),
+	60002=>array('id'=>'60002','name'=>'天朝2','pid'=>'0','path' => '', 'expanded' => false, 'leaf' => true),
+	
+	
+	
+    1=>array('id'=>'1','name'=>'北京','pid'=>'60001','path' => '', 'expanded' => false, 'leaf' => true),    
+    2=>array('id'=>'2','name'=>'上海','pid'=>'60001','path' => '', 'expanded' => false, 'leaf' => true),   
+	
+	3=>array('id'=>'3','name'=>'浦东','pid'=>'2','path' => '', 'expanded' => false, 'leaf' => true),    
+    4=>array('id'=>'4','name'=>'朝阳','pid'=>'1','path' => '', 'expanded' => false, 'leaf' => true),
+    
+    5=>array('id'=>'5','name'=>'广州','pid'=>'60002','path' => '', 'expanded' => false, 'leaf' => true),    
+    6=>array('id'=>'6','name'=>'三里屯','pid'=>'4','path' => '', 'expanded' => false, 'leaf' => true),   
+    7=>array('id'=>'7','name'=>'广东','pid'=>'5','path' => '', 'expanded' => false, 'leaf' => true),   
+    8=>array('id'=>'8','name'=>'三里','pid'=>'4','path' => '', 'expanded' => false, 'leaf' => true),  
+    10=>array('id'=>'10','name'=>'小胡同','pid'=>'8','path' => '', 'expanded' => false, 'leaf' => true),
+	
+    );   
+
+print_r(generateTree($arr));
+
+print_r(getChildrenList($arr, 60002));

@@ -1,0 +1,31 @@
+
+INST_LIBDIR=$(LIB_PREFIX)/usr/lib/SecHome
+INST_BINDIR=$(BIN_PREFIX)/usr/bin/SecHome
+INST_CFGDIR=$(INC_PREFIX)/etc/cfgsvr.d
+PROJ_BINNAME=cfgsvr
+CFGNAME=cfgsvr.conf
+
+ifndef PROJECT
+INST_RCDIR = $(INC_PREFIX)/etc/scripts/SecHome
+endif
+
+
+install:
+	@make uninstall
+	@install -m 755 -o 0 -g 0 -d $(INST_BINDIR)
+	@install -m 755 -o 0 -g 0 -d $(INST_CFGDIR)
+
+	@install  --strip-program=$(STRIP) -s -m 755 -o 0 -g 0 ./bin/$(PROJ_BINNAME) $(INST_BINDIR)/
+	@install -m 644 -o 0 -g 0 ./$(CFGNAME) $(INST_CFGDIR)/cfgsvr.conf
+	@install -m 755 -o 0 -g 0 ./cfgsvrrc $(INST_RCDIR)/
+
+	@echo "$(PROJ_BINNAME) install over!"
+
+
+uninstall:
+	@rm -f $(INST_BINDIR)/$(PROJ_BINNAME) 
+	@rm -f $(INST_RCDIR)/cfgsvrrc
+	@rm -rf $(INST_CFGDIR)
+	@echo "$(PROJ_BINNAME) uninstall over!"
+
+	

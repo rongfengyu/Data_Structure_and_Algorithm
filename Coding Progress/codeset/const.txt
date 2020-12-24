@@ -1,0 +1,41 @@
+
+const 与 const *
+
+#include <stdio.h>
+
+
+int main(void) 
+{
+ 
+    const int a = 10;
+
+    //a=11;//错误，不能通过a修改它的值
+
+    printf("%d\n",a);
+
+
+    const int *aa;
+
+    aa = &a;
+
+    //*aa =11;//错误，不能通过*aa修改它指向的值
+
+    int bb=11;
+
+    aa = &bb;
+ 
+
+   
+ printf("%d\n",*aa);
+
+    return 0;
+
+}
+
+const的常见用法
+修饰限定函数的形参，该函数不会修改实参指针所指的数据
+如
+int putdata(const string& input, string& output)
+输入的input字符串应该不能被修改
+
+const和*的组合通常只用于在数组形式的参数中模拟传值调用，它声称“我给你一个指向它的指针，但你不能修改它”

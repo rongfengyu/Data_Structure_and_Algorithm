@@ -1,0 +1,84 @@
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+ 
+
+int main(void) {
+
+ 
+	char	*token;
+	
+	char    s[]=",/";
+ 
+	
+	char str[] = "1.1.1.1/24,2.2.2.2/255.255.255.0";
+
+	char sp[] = " .\n\t\r";
+
+ 
+	token = strtok(str, s);
+
+	while (token) {
+	
+		printf("%s\n", token);
+
+		token = strtok(NULL, s);
+
+	}
+
+ 
+	
+	return 0;
+
+}
+
+结果：
+
+1.1.1.1
+24
+2.2.2.2
+255.255.255.0
+
+注意：
+1.strtok是会修改原字符串的
+strtok在划分原串时，把包含在分隔集内的字符转化成了'\0'（可能是其他字符）
+如果想对同一个串多次划分，请保存原串，用复制串去划分
+
+2.不应在分隔循环内显式或隐式调用strtok
+
+
+3.分割结果跳过了空字符串，如str="\n\n555\n", s="\n",则token = strtok(str, s) = "555"
+
+
+#include <string.h>
+#include <stdio.h>
+ 
+int main () {
+   //char str[80] = "This is - www.runoob.com - website";
+   char str[] = "/\n555\n\n123\n\n";
+   const char s[2] = "/\n";
+   char *token;
+	int i =0;
+   
+   /* 获取第一个子字符串 */
+   token = strtok(str, s);
+	printf( "%p,x=|%s|\n", token, token );
+   
+   /* 继续获取其他的子字符串 */
+   while( token != NULL ) {
+      printf( "%p,xx=|%s|\n", token, token );
+    
+      token = strtok(NULL, s);
+	   i++;
+   }
+   printf("i=%d\n", i);
+   return(0);
+}
+
+0x7ffc614dd892,x=|555|
+0x7ffc614dd892,xx=|555|
+0x7ffc614dd897,xx=|123|
+i=2
+

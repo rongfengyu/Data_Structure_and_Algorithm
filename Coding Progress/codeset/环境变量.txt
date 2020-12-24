@@ -1,0 +1,350 @@
+问题一：脚本执行退出流程
+
+source 或者 .命令  (无需执行权限)
+
+无需单独开启shell进程执行脚本内容
+
+
+sh file_name(无需执行权限)
+bash file_name(无需执行权限)
+./file_name(需要执行权限)
+
+需要单独开启shell进程执行脚本内容
+
+1、执行脚本是在一个子shell环境运行的，脚本执行完后该子shell自动退出。
+
+2、执行脚本中的系统环境变量（用export定义的变量）才会被复制到子shell中。
+
+3、一个shell中的系统环境变量只对该shell或者它的子shell有效，该shell结束时变量消失（并不能返回到父shell中）。  ———— 使用source命令最方便（在同一个shell中，不创建新的shell进程），不用关心环境变量的继承问题
+
+4、不用export定义的变量只对该shell有效，对子shell也是无效的。 直接执行一个脚本文件是在一个子shell中运行的，而source则是在当前shell环境中运行的。source可以让脚本影响它们的父shell环境,这和export去影响子shell环境相反。
+
+
+
+
+一、/etc/profile里存放的环境变量对于所有用户都有效。不管你是用什么用户登陆，
+
+系统都会默认执行source /etc/profile，得到其环境变量。
+
+二、如果想要私人定制，可以修改当前用户目录下的.bashrc文件。
+
+三、打开一个shell终端，执行export XXX=$XXX:YYY。该环境变量只在当前shell有效，
+
+如果再开一个shell，或者关闭该shell，另开一个shell，你会发现刚设置的环境变量不存在。
+
+
+在脚本c.sh中sh ./b.sh ，则会重新创建一个shell进程，环境变量可能不同；
+在脚本c.sh中source ./b.sh，此时执行b.sh待shell进程与执行c.sh的shell进程是同一个，环境变量是一样的
+return只能在函数中或者是被source 的脚本中使用
+
+
+
+exit与return
+（1）作用不同。exit用于在程序运行的过程中随时结束程序，exit的参数是返回给OS的。exit是结束一个进程，它将删除进程使用的内存空间，同时把错误信息返回父进程。而return是返回函数值并退出函数；
+（2）语义层级不同。return是语言级别的，它表示了调用堆栈的返回；而exit是系统调用级别的，它表示了一个进程的结束；
+（3）使用方法不用。return一般用在函数方法体内，exit可以出现在Shell脚本中的任意位置。
+
+exit用于退出shell进程，对于source执行的脚本执行exit后就会退出整个脚本（ngfw目前会遇到的问题）
+
+return用于shell脚本中的函数退出，或者source的子shell脚本退出
+
+
+问题二：龙芯平台的一些命令执行结果不可靠
+
+使用ps、wc执行的一系列命令最后的结果不可靠
+
+
+
+exit命令是Shell内建命令，用于退出当前Shell进程。
+return是语言级别的一个关键字，用于结束函数并返回一个结果。return不带参数时，则会返回函数体中最后一个命令的返回值。
+return也可以用于使用 . 或source的方式包含的子Shell脚本中，可以返回指定的状态或者脚本中最后一个命令的exit status。
+
+
+没有被export导出的变量（即非环境变量）是不能被子shell继承的
+
+
+
+function  func_name() {
+} 
+或
+func_name() {
+} 
+
+
+#####moudle.sh####
+
+#!/bin/bash
+delete()
+{
+  rm -rf $de
+}
+copy()
+{
+    cp -rf $sdir  $tdir
+}
+backup()
+{
+    tar zcvf $tar_name  $tar_dir &> /dev/null
+}
+quit()
+{
+    exit
+}
+
+####db-backup.sh#####
+
+#!/bin/bash
+
+#调用（并继承环境变量）moudle.sh 脚本中的函数
+source /root/moudle.sh          
+
+while true 
+do
+cat <<EOF
+*******************************
+   The following is optional
+*******************************
+      1) Copy
+      2) Delete
+      3) Backup
+      4) Exit
+*******************************
+EOF
+read -p "please enter your chioce:" option
+  case $option in
+  1)
+     read -p "Please input the file you want to copy:" sdir
+     read -p "Please input the directory you want to copy:" tdir
+     copy
+     ;;
+  2)
+     read -p "Please input your target file:" de
+     delete
+     ;;
+  3)
+     read -p  "Please input the backupfile name:" tar_name
+     read -p  "Please input the file you want to backup:" tar_dir
+     backup                  
+#注意上面这些变量都要和引用函数脚本的变量一致。
+     ;;
+  4)
+     quit;break
+     ;;
+  *)
+     echo "option is inviald."
+  esac
+
+
+shell脚本基本书写模板
+
+#!/usr/bin/bash
+
+func1(){
+    #do sth
+}
+
+func2(){
+    #do sth
+}
+
+main(){
+    func1
+    func2
+}
+
+main "$@"
+
+
+
+循环
+#!/bin/sh
+REPEAT_TIME=3
+
+check_proc_state() {
+	echo $1
+	num="0"
+	for i in $(seq 1 $REPEAT_TIME) 
+	do
+		num_t=`ps  | grep $1 | wc -l`
+		echo $num_t
+		if [ $num_t -gt $num ]; then
+			num=$num_t
+		fi
+	done
+	
+	return $num
+}
+echo $1
+
+check_proc_state loggatherd
+if [ $? -le "1" ]; then
+	echo le
+else
+	echo ge
+fi
+	
+#echo xxx 
+echo $?
+
+脚本嵌入文本heredocs  ——  用于制作一些模板文件
+
+command <<END
+    document
+END
+
+command是 Shell 命令，<<END是开始标志，END是结束标志，document是输入的文档（也就是一行一行的字符串）。
+
+这种写法告诉 Shell 把 document 部分作为命令需要处理的数据，直到遇见终止符END为止（终止符END不会被读取）。
+
+注意，终止符END必须独占一行，并且要定顶格写。
+
+分界符（终止符）可以是任意的字符串，由用户自己定义，比如 END、MARKER 等。分界符可以出现在正常的数据流中，只要它不是顶格写的独立的一行，就不会被作为结束标志。
+
+正文中也可以出现结束标志END，只要它不是独立的一行，并且不顶格写，就没问题。
+
+制表符仅仅是为了格式对齐，我们并不希望它作为正文的一部分，为了达到这个目的，你可以在<<和END之间增加-
+command <<-END
+    document
+END
+
+
+#输出定向到终端
+cat << EOF
+12
+34
+56
+EOF
+
+#输出定向到文件
+cat >> /etc/rsyncd.conf << EOF
+log file = /usr/local/logs/rsyncd.log
+transfer logging = yes
+log format = %t %a %m %f %b
+syslog facility = local3
+EOF
+
+在Shell中特殊变量$?可以用来获取脚本或函数的退出码（返回码）。
+
+Shell脚本有三种方式返回退出码：
+
+1.exit命令，用exit返回退出码，exit后的指令不会再执行。
+
+2.return命令，但是要注意的是只有用source方式调用的脚本中才能用return返回退出码，return后的指令同样不会再执行。
+
+3.如果脚本中既没有exit也没有return，则脚本的退出码为脚本中最后一条指令的退出码。
+
+Shell函数有两种方式返回退出码：
+
+1.return命令，return后的指令不会再执行。
+
+2.如果没有return，则函数的退出码为函数中最后一条指令的退出码。
+
+在脚本或函数执行完成后，紧接着通过$?就可以获得脚本或函数的退出码。
+
+Linux退出码的有效值为0-255，以下为保留的退出码。
+
+
+shell 中运行的每个命令都使用退出状态码（exit status）来告诉shell 它完成了处理。退出状态码是一个 0 ~ 255 之间的整数值，在命令结束运行时由命令传给shell。你可以捕捉这个值并在脚本中使用。
+
+Linux 使用了$? 专属变量来保存上个执行的命令的退出状态码。你必须在要查看的命令之后马上查看或使用$?变量。它的值会变成shell中执行的最后一条命令的退出状态码
+
+0                命令成功结束
+1                通用未知错误
+2                误用shell命令
+126            命令不可执行
+127            没找到命令
+128            无效退出参数
+128+x        Linux 信号x的严重错误
+130            Linux 信号2 的严重错误，即命令通过SIGINT（Ctrl＋Ｃ）终止
+255            退出状态码越界
+
+默认状态下，shell脚本会以脚本中的最后一个命令作为退出状态码。所以一般情况下，在shell脚本中以 exit 命令的值来指定shell命令的退出状态码。
+但是退出状态码的范围是 0 ~ 255, 退出值超出这个范围将会执行取模运算。
+例如通过exit 命令指定返回值为300，经过取模运算，那么退出状态码就为44.
+
+
+代码书写优秀习惯
+a>.成对内容的一次写出来，防止漏写。例如：{},[],'',``,"".
+b>.[]中括号两端都要有空格，书写时即可流出空格[ ],然后退格书写内容。
+c>.流程控制语句一次书写完，在添加内容。
+
+
+shell脚本传参
+
+方式一：$0,$1,$2..
+
+采用$0,$1,$2..等方式获取脚本命令行传入的参数，值得注意的是，$0获取到的是脚本路径以及脚本名，后面按顺序获取参数，当参数超过10个时(包括10个)，需要使用${10},${11}....才能获取到参数，但是一般很少会超过10个参数的情况。
+
+可以看到${10}正确读取到了第十个参数，而$10被分成$1读取到第一个参数a然后拼接字符串0，于是输出a0。
+
+优点：获取参数更容易，执行脚本时需要的输入少
+
+缺点：必须按照顺序输入参数，如果中间漏写则参数对应就会错误
+
+方式二：getopts
+
+语法格式：getopts [option[:]] [DESCPRITION] VARIABLE
+option：表示为某个脚本可以使用的选项
+":"：如果某个选项（option）后面出现了冒号（":"），则表示这个选项后面可以接参数（即一段描述信息DESCPRITION）
+VARIABLE：表示将某个选项保存在变量VARIABLE中
+
+2.1 示例：同样新建一个test.sh文件
+
+while getopts ":a:b:c:" opt
+do
+    case $opt in
+        a)
+        echo "参数a的值$OPTARG"
+        ;;
+        b)
+        echo "参数b的值$OPTARG"
+        ;;
+        c)
+        echo "参数c的值$OPTARG"
+        ;;
+        ?)
+        echo "未知参数"
+        exit 1;;
+    esac
+done
+用一个while循环加case分支获取不同参数，:a:b:c相当于定义参数的变量名，有时候可能会有未知参数，所以增加一个?的分支。
+
+$ ./test.sh -a 1 -c 3 -d 4
+
+#在shell中的输出
+参数a的值1
+参数c的值3
+未知参数
+
+优点：由于使用了-a加参数值的方式进行一一匹配，所以不会参数匹配错误，同时也可以缺省参数，并不会导致参数错误，同时也便于后期参数的扩展和移植
+
+缺点：脚本执行时参数需要的输入会增多
+ 
+
+总结：推荐使用getopts的方式进行参数传递
+
+
+1. 在/etc/profile文件中添加变量【对所有用户生效（永久的）】
+2. 在用户目录下的.bash_profile文件中增加变量【对单一用户生效（永久的）】
+3. 直接运行export命令定义变量【只对当前shell（BASH）有效（临时的）】
+在shell的命令行下直接使用[export变量名=变量值]定义变量，该变量只在当前的shell（BASH）或其子shell（BASH）下是有效的，shell关闭了，变量也就失效了，再打开新shell时就没有这个变量，需要使用的话还需要重新定义。
+三、另外
+1.使用readonly命令设置只读变量，如果使用了readonly命令的话，变量就不可以被修改或清除了。
+2.使用unset命令来清除环境变量 $ unset TEMP_KEVIN #删除环境变量TEMP_KEVIN
+
+
+
+编程的核心是数据结构，而不是算法。
+
+
+程序设计思想
+数据驱动编程
+
+
+
+
+流程脚本 DSL xml
+
+
+
+

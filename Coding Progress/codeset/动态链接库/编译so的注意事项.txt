@@ -1,0 +1,47 @@
+so=shared object=共享对象、动态库
+
+
+1.动态库文件的扩展名是“.so”，而静态库文件的扩展名是“.a”
+
+2.通过-lname选项，告诉编译链接到libname.so
+注意：名字必须为libname.so，不能为libname.so.1或其他，否则编译器不能识别。如果没有则创建软链接，名字必须为libname.so
+
+3.编译器期望在确定的目录找到库
+使用-L<pathname>指定所需库文件的位置
+
+4.在代码的头文件中，确认需要使用的函数库
+如头文件中有“#include <iconv.h>”,编译时需要指定-L/usr/lib -liconv
+
+5.*静态库中的符号提取方法比动态库的限制更严
+动态链接中，所有的库符号进入输出文件的虚拟空间中，所有的符号对于链接在一起的所有文件都是可见的。（库中所有符号都会加进去，所有库顺序不太重要）
+静态链接中，处理archive时，只是在archive中查找载入器当时所知道的未定义符号（只加载目前所需的未定义符号）
+
+因此，为了减少出错的可能，始终将-l函数库选项放在编译命令行的左右边。
+
+
+
+调试技巧：
+nm
+names的缩写， nm命令主要是用来列出某些文件中的符号（说白了就是一些函数和全局变量等）。
+
+在程序ld时，出现undefined symbol的错误，使用nm排错
+
+nm libbase.so | grep <undefined_symbol> | grep -v UNDEF
+
+readelf
+a.如果在编译时指定库位置，如g++ -Wl,-rpath,/usr/local/lib/ -o evh libevent_http.cpp -levent
+-Wl,-rpath,  用于指定程序运行时查找动态链接库的路径，多个路径是使用冒号隔开。
+可以使用readelf命令查看RPATH（指定程序运行时查找动态链接库的路径）
+
+g++ -Wl,-rpath,/usr/local/lib/ -o evh libevent_http.cpp -levent
+readelf -dl  evh
+
+b.如果编译时未指定运行位置，则编辑/etc/ld.so.conf 文件，指定系统程序执行的动态库位置，在需要多个so版本共存时很有用
+
+
+ldd
+列出可执行文件的动态依赖集。告诉你动态链接的程序所需要的函数库
+
+
+Interpositioning打桩
+通过编写与库函数同名的函数来取代该库函数的行为，，，，确保这是程序员的意图

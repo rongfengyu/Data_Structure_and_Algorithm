@@ -1,0 +1,303 @@
+出于可移植性的考虑，编程应该使用库函数而不是系统调用
+
+建议使用fopen、fclose等，而不是open、close等
+
+
+多态分为静态多态与动态多态
+
+静态多态分为（函数重载、泛型编程）
+
+动态多态为虚函数
+
+
+静态多态是编译器在编译期间完成的，编译器会根据实参类型来选择调用合适的函数，如果有合适的函数可以调用就调，没有的话就会发出警告或者报错
+函数重载——相同的函数名接受不同的形参
+
+动态多态： 显然这和静态多态是一组反义词，它是在程序运行时根据基类的引用（指针）指向的对象来确定自己具体该调用哪一个类的虚函数。
+
+
+
+动态多态的条件：
+ 
+●基类中必须包含虚函数，并且派生类中一定要对基类中的虚函数进行重写。
+ 
+●通过基类对象的指针或者引用调用虚函数。
+
+
+
+重写 ： 
+
+（a）基类中将被重写的函数必须为虚函数（上面的检测用例已经证实过了） 
+
+（b）基类和派生类中虚函数的原型必须保持一致（返回值类型，函数名称以及参数列表），协变和析构函数（基类和派生类的析构函数是不一样的）除外 
+
+（c）访问限定符可以不同 
+那么问题又来了，什么是协变？ 
+协变：基类（或者派生类）的虚函数返回基类（派生类）的指针（引用） 
+
+
+总结一道面试题：那些函数不能定义为虚函数？ 
+经检验下面的几个函数都不能定义为虚函数： 
+
+1）友元函数，它不是类的成员函数 
+
+2）全局函数 
+
+3）静态成员函数，它没有this指针 
+4）构造函数，拷贝构造函数，以及赋值运算符重载（可以但是一般不建议作为虚函数）
+
+
+抽象类作为基类被子类继承了才有存在的意义，不能单独出来使用——即：抽象类不能实例化出对象
+
+在成员函数(必须为虚函数)的形参列表后面写上=0，则成员函数为纯虚函数。包含纯虚函数的类叫做抽象类（也叫接口类），抽象类不能实例化出对象。纯虚函数在派生类中重新定义以后，派生类才能实例化出对象。纯虚函数是一定要被继承的，否则它存在没有任何意义。
+
+
+
+
+#include <iostream>
+
+using namespace std;
+
+
+class Base
+
+{
+
+public:
+    virtual void Funtest1(int i)
+    
+	{
+        cout << "Base::Funtest1()" << endl;
+    }
+	
+    virtual void Funtest2(int i)
+
+        {
+        cout << "Base::Funtest2()" << endl;
+    }
+
+
+    int _data;
+
+};
+
+
+
+int main()
+
+{
+
+    cout << sizeof(Base) << endl;
+
+    Base b;
+
+    b._data = 10;
+
+    return 0;
+
+}
+
+派生类虚表：
+ 
+1.先将基类的虚表中的内容拷贝一份
+ 
+2.如果派生类对基类中的虚函数进行重写，使用派生类的虚函数替换相同偏移量位置的基类虚函数
+ 
+3.如果派生类中新增加自己的虚函数，按照其在派生类中的声明次序，放在上述虚函数之后
+ 
+https://coolshell.cn/articles/12176.html
+
+
+
+多态缺陷
+
+●降低了程序运行效率（多态需要去找虚表的地址） 
+
+●空间浪费
+
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+ 
+#define MAXTOKENS 100
+#define MAXTOKENLEN 64
+ 
+enum type_tag { IDENTIFIER, QUALIFIER, TYPE };
+ 
+struct token 
+{
+	char type;
+	char string[MAXTOKENLEN];
+};
+ 
+int top = -1;
+struct token stack[MAXTOKENS];
+struct token This;
+ 
+#define pop stack[top--]
+#define push(s) stack[++top] = s
+ 
+/* figure out the identifier type */
+enum type_tag classify_string(void)
+{
+	char *s = This.string;
+	if (!strcmp(s, "const"))
+	{
+		strcpy(s, "read-only");
+		return QUALIFIER;
+	}
+	if (!strcmp(s, "volatile"))
+		return QUALIFIER;
+	if (!strcmp(s, "void"))
+		return TYPE;
+	if (!strcmp(s, "char"))
+		return TYPE;
+	if (!strcmp(s, "signed"))
+		return TYPE;
+	if (!strcmp(s, "unsigned"))
+		return TYPE;
+	if (!strcmp(s, "short"))
+		return TYPE;
+	if (!strcmp(s, "int"))
+		return TYPE;
+	if (!strcmp(s, "long"))
+		return TYPE;
+	if (!strcmp(s, "float"))
+		return TYPE;
+	if (!strcmp(s, "double"))
+		return TYPE;
+	if (!strcmp(s, "struct"))
+		return TYPE;
+	if (!strcmp(s, "union"))
+		return TYPE;
+	if (!strcmp(s, "enum"))
+		return TYPE;
+	return IDENTIFIER;
+}
+ 
+/* read next token into "this" */
+void gettoken(void)
+{
+	char *p = This.string;
+ 
+	/* read past any space */
+	while ((*p = getchar()) == ' ');
+ 
+	if (isalnum(*p))
+	{
+		/* it starts with A-Z, 0-9 read in identifier */
+		while (isalnum(*++p = getchar()));
+		ungetc(*p, stdin);
+		*p = '\0';
+		This.type = classify_string();
+		return;
+	}
+ 
+	if (*p == '*')
+	{
+		strcpy(This.string, "pointer to");
+		This.type = '*';
+		return;
+	}
+	This.string[1] = '\0';
+	This.type = *p;
+	return;
+}
+ 
+/* the piece of code that understandeth all parsing */
+void read_to_first_identifier()
+{
+	gettoken();
+	while (This.type != IDENTIFIER )
+	{
+		push(This);
+		gettoken();
+	}
+	printf("%s is ", This.string);
+	gettoken();
+}
+ 
+void deal_with_arrays()
+{
+	while (This.type == '[')
+	{
+		printf("array ");
+		gettoken(); /* a number or ']' */
+		if (isdigit(This.string[0]))
+		{
+			printf("0..%d ", atoi(This.string) - 1);
+			gettoken(); /* read the ']' */
+		}
+		gettoken(); /* read next past the ']' */
+		printf("of ");
+	}
+}
+ 
+void deal_with_function_args()
+{
+	while (This.type != ')')
+	{
+		gettoken();
+	}
+	gettoken();
+	printf("function returning ");
+}
+ 
+void deal_with_pointers()
+{
+	while (stack[top].type == '*')
+	{
+		printf("%s ", pop.string);
+	}
+}
+ 
+void deal_with_declarator()
+{
+	/* deal with possible array/function following identifier */
+	switch (This.type)
+	{
+	case '[' : deal_with_arrays(); break;
+	case '(' : deal_with_function_args();
+	}
+ 
+	deal_with_pointers();
+ 
+	/* process tokens that we stacked while reading identifier */
+	while (top >= 0)
+	{
+		if (stack[top].type == '(')
+		{
+			pop;
+			gettoken(); /* read past ')' */
+			deal_with_declarator();
+		}
+		else
+		{
+			printf("%s ", pop.string);
+		}
+	}
+}
+ 
+int main()
+{
+	/* put tokens on stack until we reach identifier */
+	read_to_first_identifier();
+	deal_with_declarator();
+	printf("\n");
+ 
+	return 0;
+}
+
+
+友元函数是指某些虽然不是类成员却能够访问类的所有成员的函数。类授予它的友元特别的访问权。
+通常同一个开发者会出于技术和非技术的原因，控制类的友元和成员函数（否则当你想更新你的类时，还要征得其它部分的拥有者的同意）。
+
+
+泛型编程（Generic Programming）最初提出时的动机很简单直接：发明一种语言机制，能够帮助实现一个通用的标准容器库。所谓通用的标准容器库，就是要能够做到，比如用一个List类存放所有可能类型的对象这样的事；泛型编程让你编写完全一般化并可重复使用的算法，其效率与针对某特定数据类型而设计的算法相同。泛型即是指具有在多种数据类型上皆可操作的含义，与模板有些相似。STL巨大，而且可以扩充，它包含很多计算机基本算法和数据结构，而且将算法与数据结构完全分离，其中算法是泛型的，不与任何特定数据结构或对象类型系在一起。
+泛型编程的代表作品STL是一种高效、泛型、可交互操作的软件组件。STL以迭代器 (Iterators)和容器(Containers)为基础，是一种泛型算法(Generic Algorithms)库，容器的存在使这些算法有东西可以操作。STL包含各种泛型算法(algorithms)、泛型迭代器（iterators）、泛型容器(containers)以及函数对象(function objects)。STL并非只是一些有用组件的集合，它是描述软件组件抽象需求条件的一个正规而有条理的架构。
+
+
+
+

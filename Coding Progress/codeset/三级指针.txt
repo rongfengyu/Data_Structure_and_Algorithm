@@ -1,0 +1,81 @@
+#include "stdio.h" 
+ 
+
+char *c[]={"ENTER","NEW","POINT","FIRST"}; 
+
+char **cp[]={c+3,c+2,c+1,c}; 
+
+char ***cpp=cp; 
+
+
+
+int main() 
+
+{
+ 
+
+   printf("%s",**++cpp);
+ 
+   printf("%s",*--*++cpp+3);
+ 
+   printf("%s",*cpp[-2]+3);
+ 
+   printf("%s\n",cpp[-1][-1]+1);
+ 
+    
+
+    return 0;
+
+}
+
+
+??输出结果是POINTER?STEW?希望高手给出解释，THANK?YOU?!
+
+
+
+我的解释：
+
+step?1 
+
+**++cpp? 
+
+cpp->cp[0]->c+3??==>?cpp==++cpp->cp[1]->c+2->"POINT"==>?*++cpp->"POINT"??==>?**++cpp=="POINT" 
+
+
+
+step?2 
+
+*--*++cpp+3 
+
+from?step1?-->conclusion:?cpp->c+2 
+
+++cpp==cpp->c+1?==>?*++cpp==*(c+1)->c[1]?==>?--(*++cpp)->c[0]?==>*(--(*++cpp))=="ENTER"??==>?*(--(*++cpp))+3->"ER" 
+
+
+
+step?3 
+
+*cpp[-2]+3 
+
+the?same?from?step?2,conclusion:cpp->c+1 
+
+cpp[-2]->cp[0]?==>?*cpp[-2]->(c+3)?=="FIRST"??==>?*cpp[-2]+3==(c+3)+3->"ST" 
+
+
+
+step?4 
+
+cpp[-1][-1]+1 
+
+the?same?from?step?2,conclusion:cpp->c+1 
+
+cpp[-1]->cp[1]?(->c+2)?==>cpp[-1][-1]->c+1?(->"NEW")?==>?(cpp[-1][-1]+1)->"EW" 
+
+
+
+conclusion:POINTER?STEW
+--------------------- 
+作者：alane1986 
+来源：CSDN 
+原文：https://blog.csdn.net/alane1986/article/details/6904819 
+版权声明：本文为博主原创文章，转载请附上博文链接！

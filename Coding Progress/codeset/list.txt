@@ -1,0 +1,94 @@
+#include <stdio.h>
+
+#include <stddef.h>
+
+
+int main(void) 
+{
+
+	struct list_head 
+	{
+	
+        struct list_head *next, *prev;
+
+	};
+
+
+	typedef  struct dp_vs_dest 
+	{
+
+	    struct list_head    n_list;     /* for the dests in the service */
+
+	    struct list_head    d_list;     /* for table with all the dests */
+
+
+	    int                 af;         /* address family */
+
+	}test_t;
+    
+
+test_t test;
+	
+    printf("%p\n", (&test));
+
+	printf("%p\n", (&(test.n_list).prev));
+
+	printf("%p\n", (&test.n_list));
+	printf("%p\n", (&test.d_list));
+
+	printf("%d\n", offsetof(test_t, d_list));
+
+	printf("hello\n");
+	// your code goes here
+	return 0;
+
+}
+
+
+
+链表使用
+
+定义链表头
+typedef struct Ipnet_nat_data_struct
+{
+    Ipcom_list head_rule;           /* Rule list */
+    Ipcom_list head_proxy;          /* Proxy list */
+    Ipcom_list head_mapping;        /* Mapping list */
+    Ipcom_hash *hash_out_port;      /* Hash table for outgoing packets with port protocols */
+    Ipcom_hash *hash_out_noport;    /* Hash table for outgoing packets with noport protocols */
+    Ipcom_hash *hash_in_port;       /* Hash table for incoming packets with port protocols */
+    Ipcom_hash *hash_in_noport;     /* Hash table for incoming packets with noport protocols */
+    Ip_u32 *ports;                  /* Pointer to port array for automatically NATed ports */
+    Ip_u32 last_port;               /* Last used auto port */
+    struct Ip_in_addr *origfrom;    /* original param->from */
+    struct Ip_in_addr newsource;    /* new source address */
+    struct Ipnet_nat_data_inner inner;
+}
+Ipnet_nat_data;
+
+typedef struct Ipnet_nat_proxy_struct
+{
+    Ipcom_list                   list_proxy;  /* Keep list entry first */
+    Ipnet_nat_proxy_func         func;
+    void *                       cookie;
+    struct Ipnet_nat_proxy_inner inner;
+    Ip_u16                       vr_index;
+}
+Ipnet_nat_proxy;
+
+
+初始化
+/* Initialize lists */
+    ipcom_list_init(&ipnet->nat.head_rule);
+    ipcom_list_init(&ipnet->nat.head_proxy);
+
+遍历
+ for (nat_proxy = IPCOM_LIST_FIRST(&ipnet->nat.head_proxy);
+         nat_proxy != IP_NULL;
+         nat_proxy = IPCOM_LIST_NEXT(&nat_proxy->list_proxy))
+
+插入，ipnet_nat_add_proxy
+ipcom_list_insert_last(&ipnet->nat.head_proxy, &nat_proxy->list_proxy);
+
+删除
+ipcom_list_remove(&nat_proxy->list_proxy);

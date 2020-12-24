@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
+#define LEN sizeof(struct Matrix)
+struct Matrix
+{
+    int serial;
+    int row;
+    int coloum;
+    int *ports;
+
+};
+
+main()
+{
+    int len, i;
+    struct Matrix *pArr;
+    len=10;
+    pArr = (struct Matrix *)malloc(len*LEN);//为结构体分配存储空间
+    //pArr = malloc(len*LEN);
+    printf("为数组赋值：\n");
+    for (i = 0; i<len; i++)
+    {   
+
+        pArr[i].serial = i + 1;
+        //printf("第%d个元素：", pArr[i].serial);
+        pArr[i].row = i;
+        pArr[i].coloum = i;
+        pArr[i].ports = (int *)malloc(5*sizeof(int));
+        for (int j = 0; j<5; j++)
+        {
+            pArr[i].ports[j]=i;
+        }
+        //scanf_s("%d %d", &pArr[i].row, &pArr[i].coloum);
+    }
+    printf("数组输出：\n");
+    for (i = 0; i<len; i++)
+    {
+        printf("%4d%4d%4d\n", pArr[i].serial, pArr[i].row, pArr[i].coloum);
+        if(i==2)
+        for (int j = 0; j<5; j++)
+        {
+           printf( "%4d\n",pArr[i].ports[j]);
+        }
+    }
+    //system("pause");
+    return 0;
+}

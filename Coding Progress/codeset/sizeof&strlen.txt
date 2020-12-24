@@ -1,0 +1,55 @@
+sizeof与Strlen的区别与联系
+    sizeof(...)是运算符，在头文件中typedef为unsigned int，其值在编译时即计算好了，参数可以是数组、指针、类型、对象、函数等。
+    它的功能是：获得保证能容纳实现所建立的最大对象的字节大小。
+    strlen(...)是函数，要在运行时才能计算。参数必须是字符型指针（char*）。当数组名作为参数传入时，实际上数组就退化成指针了。
+    它的功能是：返回字符串的长度。该字符串可能是自己定义的，也可能是内存中随机的，该函数实际完成的功能是从代表该字符串的第一个地址开始遍历，直到遇到结束符NULL。返回的长度大小不包括NULL。
+
+char* ss = "0123456789"; 
+sizeof(ss) 结果 4 ＝＝＝》ss是指向字符串常量的字符指针，sizeof 获得的是一个指针的之所占的空间,应该是 
+
+长整型的，所以是4 
+sizeof(*ss) 结果 1 ＝＝＝》*ss是第一个字符 其实就是获得了字符串的第一位'0' 所占的内存空间，是char类 
+
+型的，占了 1 位 
+
+strlen(ss)= 10 >>>> 如果要获得这个字符串的长度，则一定要使用 strlen
+
+
+对于数组
+
+char teststr[] = "0123456789";
+
+printf("\n%lu, %d\n", sizeof(teststr), strlen(teststr));
+//11  10
+
+
+char teststr2[20] = "0123456789";
+
+printf("\n%lu, %d\n", sizeof(teststr2), strlen(teststr2));
+//20  10
+
+
+char *teststr3= "0123456789";
+printf("\n%lu,%lu, %d\n", sizeof(teststr3), sizeof(*teststr3), strlen(teststr3));
+//8(平台不同), 1 , 10
+
+
+    char teststr[] = "0123456789";
+
+    printf("\n%lu, %d\n", sizeof(teststr), strlen(teststr));
+
+   
+ printf("\n%s\n", &teststr[0]);//0123456789  传递数组第一个元素的地址与传递数组指针等价，print打印遇到NULL停止
+
+将数组作为函数参数无意义
+
+int strlen(char s[]){}  与 int strlen(char *s){} 等价
+
+int main(int argc, char *argv[]){}  与 int main(int argc, char **argv){} 等价
+
+但是
+
+extern char *hello 与 extern char hello[] 截然不同
+
+
+

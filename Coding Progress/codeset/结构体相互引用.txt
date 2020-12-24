@@ -1,0 +1,58 @@
+结构体相互引用
+
+两个结构体互相引用，也就是两个结构体互相成为对方的成员变量。此时，我们应该如何来组织我们的数据结构呢？
+
+这时，我们可以使用声明实现两个结构体的互相引用，即先在前面对其中的某个结构体进行声明。声明之后，我们就可以互相引用了。
+
+这是因为声明的时候只是简单的表明是某种结构体而已，而结构体的内容我们不得而知。
+因此我们引用的时候只能使用指针而不能直接使用结构体，因为只有这样才能为结构体分配确定的内存
+(指针的内存始终是4字节，而未知结构体的内存大小是不确定的)。
+
+我想定义两个结构体，
+typede struct A
+{
+     BBB *p;
+     int a;
+     int b;
+}AAA;
+typedef struct B
+{
+    AAA *p;
+    int aa;
+    int bb;
+}BBB;
+如何实现？
+
+答案：
+struct B;
+typedef struct A
+{
+     struct B *p;
+     int a;
+     int b;
+}AAA;
+
+typedef struct B
+{
+    struct A *p;
+    int aa;
+    int bb;
+}BBB;
+或者
+typedef struct A AAA;
+typedef struct B BBB;
+
+struct A
+{
+  BBB *p;
+  int a;
+  int b;
+};
+
+struct B
+{
+  AAA *p;
+  int aa;
+  int bb;
+
+};

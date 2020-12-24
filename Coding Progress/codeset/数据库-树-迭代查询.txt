@@ -1,0 +1,16 @@
+--计算目前有多少树
+SELECT count(*) FROM bandwidth_policy where father_id=0;
+SELECT * FROM bandwidth_policy where father_id=0;
+
+--获取一棵树
+WITH RECURSIVE
+lookup_onetree(policy_id) AS (
+ VALUES(4)
+ UNION
+ SELECT bandwidth_policy.policy_id FROM bandwidth_policy,lookup_onetree WHERE bandwidth_policy.father_id=lookup_onetree.policy_id
+ )
+--SELECT * FROM lookup_onetree;
+SELECT * FROM bandwidth_policy where policy_id in (SELECT * FROM lookup_onetree);
+--SELECT * FROM bandwidth_policy where policy_id in (SELECT * FROM lookup_onetree) order by father_id asc;--按父亲的大小排序
+--SELECT count(*) FROM bandwidth_policy where policy_id in (SELECT * FROM lookup_onetree);
+--SELECT count(*) FROM bandwidth_policy where policy_id in (SELECT * FROM lookup_onetree) and (father_id=1);--判断指定father是否超过8个孩子，第一层没有限制（parent=0）

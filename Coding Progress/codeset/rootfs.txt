@@ -1,0 +1,49 @@
+https://blog.csdn.net/gysmmzh/article/details/53422731
+https://www.crifan.com/use_mkfs_jffs2_generate_jffs2_rootfs_image_file/
+https://www.crifan.com/rootfs_folder_why_need_to_generate_rootfs_image_file/
+
+之所以要把PC上的rootfs文件夹，制作成对应的某种嵌入式文件系统的镜像文件，的原因是：
+
+嵌入式Linux中，针对Nand Flash的嵌入式文件系统（合适的，常用的有：jffs2，yaffs，UBI等），和普通PC电脑中的文件系统不同（Win7下常用NTFS/TAF32等）
+
+且嵌入式Linux系统中，不方便直接以文件（或文件夹）的形式，直接拷贝文件（从PC端到嵌入式开发板上）
+
+所以：
+
+1.不仅要把PC端的rootfs文件夹打包成一个单一的文件；
+
+2.还要把此单一的文件，制作成，和目标的嵌入式开发板上（的nand flash）所用的文件系统的格式相匹配，即弄成jffs2，yaffs2，UBI等格式。
+
+然后：
+
+才能把此rootfs镜像文件，通过Uboot，烧录到nand flash上
+
+
+
+在内核的make config文件中指定rootfs文件系统的位置，在编译生成ramdisk时引用
+
+
+总结一下制作initramfs的要点
+? 
+1.内核选项中要使能initramfs支持
+? 
+2.CONFIG_INITRAMFS_SOURCE指向自建的根文件系统目录
+? 
+3.根文件系统中的命令用busybox的make install得到
+? 
+4.在busybox建立的目录基础上添加其它必须的目录
+? 
+5.在/dev建立设备节点：console和null
+? 
+6.建立指向/bin/busybox的符号连接/init
+? 
+7.编译linux内核
+? 
+8.制作U-Boot映象
+--------------------- 
+作者：ohhmygod 
+来源：CSDN 
+原文：https://blog.csdn.net/ohhmygod/article/details/6777888 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+-> 才能支持后续的嵌入式Linux kernel启动后，从对应的位置，读取nand flash上的rootfs，然后正常启动和运行嵌入式Linux。

@@ -1,0 +1,51 @@
+goto语句可以用于同一个函数内异常处理，不幸的是，goto是本地的，它只能跳到所在函数内部的标号上。为了解决这个限制，C函数库提供了setjmp()和longjmp()函数，它们分别承担非局部标号和goto作用。头文件<setjmp.h>申明了这些函数及同时所需的jmp_buf数据类型。
+
+??? 1.setjmp(jbuf)设置“jump”点，用正确的程序上下文填充jmp_buf对象jbuf。这个上下文包括程序存放位置、栈和框架指针，其它重要的寄存器和内存数据。当初始化完jump的上下文，setjmp()返回0值。
+
+
+??? 2. 以后调用longjmp(jbuf,r)的效果就是一个非局部的goto或“长跳转”到由jbuf描述的上下文处（也就是到那原来设置jbuf的setjmp()处）。当作为长跳转的目标而被调用时，setjmp()返回r （或1，如果r设为0的话）。（setjmp()不能在这种情况时返回0，否则就和设置jump点的返回值冲突了）
+--------------------- 
+作者：wangwenwen 
+来源：CSDN 
+原文：https://blog.csdn.net/wangwenwen/article/details/38455921 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+#include <stdio.h>
+#include <setjmp.h>
+ 
+jmp_buf jumper;
+ 
+int xdiv(int a, int b) {
+  if (b == 0) { // can't divide by 0
+    longjmp(jumper, -3);//跳到以jumper 所在的jmp point，进行处理，-3 相当于具体的exception code.
+  }
+  return a / b;
+}
+
+int a = 124;
+int b = 0;
+int result;
+    
+int main(int argc, char *argv[]) {
+  int jstatus = setjmp(jumper);//相当于java catch,如果发生 jumper 异常，那么会跳回到这个jmp point
+  
+  printf("hello xx\n");//出错时打印两次
+  
+  if (jstatus == 0) {//第一次执行的时候是正确的setjmp return 0.
+    printf("%d/%d", a, b);
+    result = xdiv(a, b);
+    printf("=%d\n", result);
+  } 
+  else if (jstatus == -3)
+    printf(" --> Error:divide by zero\n");
+  else
+    printf("Unhandled Error Case");
+}
+
+
+输出结果：
+
+hello xx
+124/0hello xx
+ --> Error:divide by zero

@@ -1,0 +1,113 @@
+1.0.0.0  使用autotools构建一个简单的软件，初始版本，支持静态库与动态库编译
+
+1.0.0.1  修改ac、am文件的编写方式，添加pkglib、AC_SUBST、AC_CHECK_HEADERS等
+
+1.0.0.2  添加一些注释，添加doc、src/play以pkglib方式
+
+1.0.0.3  支持out-of-source build的编译方式
+
+1.0.0.4  添加paly.pc文件，在m4中添加公共依赖库zlib
+
+1.0.0.5  安装conf文件
+
+去除多余代码，添加简单m4
+
+
+问题
+
+如何安装不用编译现成的三方库？ 只能预先部署到系统？
+
+如何添加m4中依赖
+
+共享库so必须被安装，所以不允许使用 `noinst_LTLIBRARIES'和`check_LTLIBRARIES'
+
+用automake发布一个库
+
+#vim Makefile.am
+
+EXTRA_DIST = demo.cpp \
+
+ $(top_srcdir)/include \
+
+ $(top_srcdir)/utility/include 
+
+AUTOMAKE_OPTIONS = foreign
+
+lib_LTLIBRARIES = libktimer.la
+
+libktimer_la_SOURCES = $(top_srcdir)/src \
+
+   $(top_srcdir)/utility/src 
+
+libktimer_la_LDFLAGS = -version-info 0:0:0
+
+
+Automake安装可执行脚本
+
+1.安装可执行脚本到bin目录或者是sbin目录
+
+比如我这里有个脚本在源代码目录的./tools/cm.pl。那么在Makefile.am中增加如下语句：
+
+dist_bin_SCRIPTS=./tools/cm.pl
+
+将会把cm.pl脚本安装到目标安装目录的bin子目录下。如果你想安装到sbin目录下，请使用
+
+dist_sbin_SCRIPTS=./tools/cm.pl
+
+
+2.安装到其他目录下
+
+这个时候，可以使用install-data-hook目标或者install-exec-hook。由于automake生成的makefile在执行安装的时候，是先执行可执行文件的安装的，即install-exec，后执行数据文件的安装，即install-data。所以install-exec-hook目标下的命令是在安装完可执行文件以后去执行的，而install-data-hook下的命令是安装完数据文件以后，去执行的。
+
+比如我这里想把cm.pl安装的安装目录下的tools子目录下，则在Makefile.am中使用如下的语句：
+
+install-exec-hook:     
+        mkdir -p $(prefix)/tools
+        cp ./tools/cm.pl $(prefix)/tools
+        chmod a+x $(prefix)/tools/cm.pl
+
+或者使用install-data-hook替换install-exec-hook也是可以的。
+
+另外，也可以使用这样的方法，就是把cm.pl当数据文件来安装，使用install-data-hook仅仅做文件执行权限的更改，但是这样比较麻烦。不推荐。这样做的代码如下：
+
+toolsdir = $(prefix)/tools
+tools_DATA = ./tools/cm.pl
+install-data-hook:
+        chmod a+x $(toolsdir)/cm.pl
+（行首必须是tab！！！）
+
+AC_CHECK_LIB(pthread, pthread_create)   前面一个为库的名字，后面一个是库中函数的名字
+AC_CHECK_HEADERS(stdlib.h string.h pthread.h) 检查是否有头文件
+
+AC_SUBST输出一个变量到由configure生成的文件中。
+
+
+定制安装文件的目录
+
+通过定制Makefile.am里面的内容可以实现将不同的程序文件、库文件、数据文件等安装到布通目录里去。automake默认给Makefile.am定义了一些目录，来把一些文件安装到指定的目录下，这些默认的目录变量如下：
+bindir
+libdir
+includedir
+datarootdir
+.....
+等等
+
+我们在编写Makefile.am文件的时候，使用 bin_PROGRAMS=来把指定的程序安装到bin目录下，也就是bindir下。
+使用lib_LIBRARIES来把指定的静态库安装到lib目录下，也就是libdir下。
+那么我们想把可执行程序或者库安装在自定义的目录下的时候，由于不是系统默认的，所以必须提供对应的dir变量才可以。例如我们要把一些可执行程序安装的test目录下，那么除了要用test_PROGRAMS来指定这些程序，还要定义testdir变量。一般可以这样定义：
+testdir=$(prefix)/test，这样在运行make install的时候，test_PROGRAMS所包含的文件将被安装到安装目下的test子目录里。对于库，使用test_LIBRARIES，并且定义testdir。(如果同时存在test_PROGRAMS和test_LIBRARIES，那么我估计这些程序和库文件都会被安装到testdir下。我没有测试过，有人测试过可以告诉我一下 ).
+
+对于我们不需要安装的程序或者库，使用noinst_前缀即可，例如我们只要编译不要安装的程序使用noinst_PROGRAMS来指明，对于只要编译不要安装的静态库使用 noinst_LIBRARIES来指明， 对于只要编译不要安装的动态库使用 noinst_LTLIBRARIES来指明。
+
+如果有不需要编译的可执行程序或者脚本也需要安装，那么可以通过dist_bin_PROGRAMS（要安装到bin目录的文件）来指定，如果是要安装到别目录的可执行程序，例如前面定义过test_PROGRAMS，那么想安装到test目录，可以使用dist_test_PROGRAMS。
+
+
+
+
+
+
+
+
+
+
+

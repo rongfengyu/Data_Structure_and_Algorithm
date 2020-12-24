@@ -1,0 +1,64 @@
+
+
+pkcs1
+
+# 公钥
+-----BEGIN RSA PUBLIC KEY-----
+-----END RSA PUBLIC KEY-----
+# 私钥
+-----BEGIN RSA PRIVATE KEY-----
+-----END RSA PRIVATE KEY-----
+
+
+
+pkcs8
+
+# 公钥
+-----BEGIN PUBLIC KEY-----
+-----END PUBLIC KEY-----
+# 私钥
+-----BEGIN PRIVATE KEY-----
+-----END PRIVATE KEY-----
+
+
+#生成私钥
+openssl genrsa -out private_key.pem 512
+
+#生成pkcs8公钥
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+
+#生成pkcs1公钥
+openssl rsa -in private_key.pem -RSAPublicKey_out -out pubkey.pem
+
+
+
+python
+
+(public_key, private_key) = rsa.newkeys(lens)
+with open('public.pem', 'wb') as f:
+    f.write(public_key.save_pkcs1())
+with open('private.pem', 'wb') as f:
+    f.write(private_key.save_pkcs1())
+
+
+#读取pkcs1公钥
+public_key = rsa.PublicKey.load_pkcs1(public_file.read())
+
+#读取pkcs8公钥
+public_key = rsa.PublicKey.load_pkcs1_openssl_pem(public_file.read())
+
+
+【可以】
+https://www.jianshu.com/p/518fa5d59f89
+
+
+
+数据公钥加密  私钥解密
+
+
+数据私钥签名  公钥验签
+
+https://www.jb51.net/article/170252.htm
+
+
+

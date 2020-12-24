@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <time.h>
+
+#define IP_GET_32ON8(xxaddr)          *(unsigned int *)(xxaddr)
+
+unsigned
+ipcom_hash_update(const void *key_param, int key_len, unsigned initval)
+{
+    unsigned a, b, c;
+    unsigned len;
+    const unsigned char *key = (unsigned char *)key_param;
+
+    /* Set up the internal state */
+    len = (unsigned) key_len;
+    a = initval;
+    b = len;
+    c = initval;
+
+    while (len >= 4)
+    {
+        a ^= (unsigned)IP_GET_32ON8(key);
+        c +=  (b << 3);
+        b += ~(a << 11);
+        a ^=  (c >> 16);
+        key += 4; len -= 4;
+    }
+
+    /* All the case statements fall through */
+    switch (len)
+    {
+    case 3: a += (unsigned)(key[2] << 16);
+    case 2: b ^= (unsigned)(key[1] << 8);
+    case 1: c += key[0];
+    default: break;
+    }
+
+    b ^=  (a >> 6);
+    a += ~(c << 15);
+    c ^=  (b >> 10);
+    return (a + b) ^ c;
+}
+
+
+int main(){
+
+    clock_t start,stop;
+    int i;
+
+    unsigned short param0 = 0x0;
+    unsigned char param1 = 0x11;
+    unsigned int param2 = 0xa14a8c0;
+    unsigned short param3 = 0x5000;
+    unsigned int param4 = 0x20aa8c0;
+    unsigned short param5 = 0xf28f;
+    unsigned int ret=0;
+    
+start = clock();
+    for(i=0; i<10000; i++)
+{
+   // ret = ipcom_hash_update(&param0, 2, 0);
+    ret = ipcom_hash_update(&param1, 1, ret);
+    printf("%x\n", ret);
+    ret = ipcom_hash_update(&param2, 4, ret);
+    ret = ipcom_hash_update(&param3, 2, ret);
+    ret = ipcom_hash_update(&param4, 4, ret);
+    ret = ipcom_hash_update(&param5, 2, ret);
+}
+stop = clock();
+printf("%x, %lu\n", ret, stop-start);
+    //printf("%x\n", ret);
+
+}
